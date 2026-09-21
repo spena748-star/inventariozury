@@ -125,7 +125,7 @@
   <div class="fab-wrap"><button class="fab" id="btnAdd" title="Agregar producto">+</button></div>
 </div>
 
-<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA Y CONVERTIDOR DE TALLAS -->
+<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA (3.6 FLASH) Y CONVERTIDOR DE TALLAS -->
 <div class="overlay hidden" id="formOverlay">
   <div class="sheet">
     <div class="sheet-head"><h2 id="formTitle">Nuevo producto</h2><button class="icon-btn" data-close="formOverlay">✕</button></div>
@@ -254,37 +254,33 @@
 
     // 1. CALZADO / SHOES
     if (category === "Calzado") {
-      if (isNaN(num)) return s; // Si no es un número directo
+      if (isNaN(num)) return s;
 
       if (dept === "hombre") {
-        // Hombre: US - 2 = MX (Ej: 10 US -> 28 MX)
         var mx = num - 2;
         return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
       } 
       else if (dept === "dama") {
-        // Dama: US - 3 = MX (Ej: 7 US -> 24 MX)
         var mx = num - 3;
         return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
       } 
       else if (dept === "nino" || dept === "nina") {
-        // Niños/Niñas Youth (1Y-6Y) ó Toddler (5C-13C)
         if (s.indexOf("Y") > -1 || (num >= 1 && num <= 6.5 && s.indexOf("C") === -1 && num < 7)) {
-          var mx = num + 19; // Ej: 1Y = 20 MX, 2Y = 21 MX, 3Y = 22 MX, 4Y = 23 MX, 5Y = 24 MX
+          var mx = num + 19;
           return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "Y US)";
         } else {
-          var mx = num + 6; // Ej: 8C = 14 MX, 10C = 16 MX, 12C = 18 MX
+          var mx = num + 6;
           return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "C US)";
         }
       } 
       else if (dept === "bebe") {
-        var mx = num + 6; // Ej: 4C = 10 MX, 5C = 11 MX
+        var mx = num + 6;
         return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
       }
     }
 
     // 2. ROPA / CLOTHING
     if (category === "Ropa") {
-      // Tallas en letra (S, M, L, XL, etc)
       if (s === "XS" || s === "XCH") return "XChica / XCH (28 MX)";
       if (s === "S" || s === "CH") return "Chica / CH (30 MX)";
       if (s === "M") return "Mediana / M (32 MX)";
@@ -292,7 +288,6 @@
       if (s === "XL" || s === "EG") return "Extra Grande / EG (36-38 MX)";
       if (s === "XXL" || s === "2XL") return "2XL / 2EG (40 MX)";
 
-      // Tallas Infantiles / Bebés (2T, 3T, 4T, 5, 6, 8, 10, 12, etc.)
       if (dept === "bebe") {
         if (s.indexOf("M") > -1 || !isNaN(num)) {
           return num + " Meses (" + num + "M US)";
@@ -308,10 +303,8 @@
         }
       }
 
-      // Pantalones o tallas numéricas
       if (!isNaN(num)) {
         if (dept === "dama") {
-          // Dama tallas 0, 2, 4, 6, 8, 10, 12
           if (num === 0 || num === 2) return "Talla 3 / 24 MX (XCH)";
           if (num === 4 || num === 6) return "Talla 5-7 / 26-28 MX (CH-M)";
           if (num === 8 || num === 10) return "Talla 9-11 / 30-32 MX (M-G)";
@@ -338,7 +331,6 @@
   $("fCategory").addEventListener("change", updateSizeConversion);
   $("fDept").addEventListener("change", updateSizeConversion);
 
-  // Compresión automática de imágenes
   function compressImage(base64Str, maxWidth, maxHeight, quality) {
     maxWidth = maxWidth || 400; maxHeight = maxHeight || 400; quality = quality || 0.5;
     return new Promise(function(resolve) {
@@ -480,7 +472,7 @@
     reader.readAsDataURL(file);
   });
 
-  // ANALIZAR CON GEMINI IA
+  // ANALIZAR CON GEMINI IA (gemini-3.6-flash)
   $("btnGeminiAnalyze").addEventListener("click", async function(){
     if(!settings.gemini_key){
       toast("Agrega primero tu API Key de Gemini en Ajustes ⚙️");
@@ -503,7 +495,8 @@
 
       var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "dept": "hombre|dama|nino|nina|bebe", "size_us": "talla detectada o vacio", "details": "detalles clave como modelo o color"}';
 
-      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + settings.gemini_key, {
+      // Petición HTTP actualizada a gemini-3.6-flash
+      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -678,20 +671,17 @@
     }); 
   }
 
-  // DIBUJO Y DISEÑO EN CANVAS DE 1080x1080
   async function renderCanvas(p) {
     var canvas = $("publishCanvas");
     canvas.width = 1080; canvas.height = 1080;
     var ctx = canvas.getContext("2d");
 
-    // Fondo degradado profesional
     var bgGrad = ctx.createRadialGradient(540, 450, 100, 540, 540, 750);
     bgGrad.addColorStop(0, "#232A27");
     bgGrad.addColorStop(1, "#0E1311");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1080, 1080);
 
-    // Dibujo de foto central con sombra y retoque
     if (p.photo_url) {
       try {
         var img = await loadImg(p.photo_url);
@@ -718,7 +708,6 @@
       }
     }
 
-    // Overlay inferior para lectura clara de texto
     var grad = ctx.createLinearGradient(0, 550, 0, 1080);
     grad.addColorStop(0, "rgba(14, 19, 17, 0)");
     grad.addColorStop(0.65, "rgba(14, 19, 17, 0.88)");
@@ -726,7 +715,6 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0, 500, 1080, 580);
 
-    // Badge Talla en la esquina superior izquierda
     if (p.size_mx || p.size_us) {
       var badgeText = "TALLA: " + (p.size_mx || (p.size_us + " US"));
       ctx.font = "600 24px Inter, sans-serif";
@@ -738,17 +726,14 @@
       ctx.fillText(badgeText, 58, 73);
     }
 
-    // Precio en grande
     ctx.fillStyle = "#E3A94A";
     ctx.font = "700 92px Fraunces, serif";
     ctx.fillText(money(p.price), 56, 885);
 
-    // Título del producto
     ctx.fillStyle = "#F1EDE3";
     ctx.font = "600 38px Inter, sans-serif";
     wrapText(ctx, p.name, 56, 948, 968, 44);
 
-    // Etiqueta de inventario si aplica
     var st = statusOf(p);
     if (st !== "ok") {
       var label = st === "out" ? "AGOTADO" : "ÚLTIMAS PIEZAS";
@@ -761,7 +746,6 @@
       ctx.fillText(label, 1080 - tw - pad - 40, 75);
     }
 
-    // Nombre del negocio
     if (settings.business_name) {
       ctx.font = "500 26px Inter, sans-serif";
       ctx.fillStyle = "rgba(241,237,218,0.75)";
@@ -783,7 +767,6 @@
     await renderCanvas(publishProduct);
   }
 
-  // ACCIÓN DEL BOTÓN PRINCIPAL
   $("btnShareAll").addEventListener("click", function(){
     if(!publishProduct) return;
     var canvas = $("publishCanvas");
