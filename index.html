@@ -219,7 +219,7 @@
   function close(id){ $(id).classList.add("hidden"); }
   document.querySelectorAll("[data-close]").forEach(function(btn){ btn.addEventListener("click",function(){ close(btn.getAttribute("data-close")); }); });
 
-  // Compresión automática de imágenes
+  // Compresión de imagen para optimizar envío a la API
   function compressImage(base64Str, maxWidth, maxHeight, quality) {
     maxWidth = maxWidth || 800;
     maxHeight = maxHeight || 800;
@@ -354,10 +354,10 @@
     reader.readAsDataURL(file);
   });
 
-  // ANALIZAR CON GEMINI IA (USANDO GEMINI-3.6-FLASH)
+  // ANALIZAR CON GEMINI 3.6 FLASH (FORMATO REST OFICIAL)
   $("btnGeminiAnalyze").addEventListener("click", async function(){
     if(!settings.gemini_key){
-      toast("Agrega primero tu Gemini API Key en Ajustes ⚙️");
+      toast("Agrega primero tu API Key de Gemini en Ajustes ⚙️");
       open("settingsOverlay");
       return;
     }
@@ -368,11 +368,16 @@
     $("btnGeminiAnalyze").disabled = true;
 
     try {
-      var base64Data = imgSrc.split(',')[1];
-      var mimeType = imgSrc.substring(imgSrc.indexOf(":") + 1, imgSrc.indexOf(";")) || "image/jpeg";
+      var parts = imgSrc.split(',');
+      var mimeType = "image/jpeg";
+      if (parts[0].indexOf(":") > -1 && parts[0].indexOf(";") > -1) {
+        mimeType = parts[0].substring(parts[0].indexOf(":") + 1, parts[0].indexOf(";"));
+      }
+      var base64Data = parts[1];
 
       var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown ni texto adicional: {"name": "nombre corto y descriptivo del producto o marca", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "details": "detalles clave como modelo, color o características"}';
 
+      // Petición REST estandarizada con camelCase (inlineData / mimeType)
       var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -380,18 +385,23 @@
           contents: [{
             parts: [
               { text: promptText },
-              { inline_data: { mime_type: mimeType, data: base64Data } }
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: base64Data
+                }
+              }
             ]
           }]
         })
       });
 
+      var json = await response.json();
+
       if(!response.ok) {
-        var errJson = await response.json().catch(function(){ return {}; });
-        throw new Error(errJson.error ? errJson.error.message : "Error HTTP " + response.status);
+        throw new Error(json.error ? json.error.message : "Error HTTP " + response.status);
       }
 
-      var json = await response.json();
       var rawText = json.candidates[0].content.parts[0].text;
       var cleanJson = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
       var parsed = JSON.parse(cleanJson);
