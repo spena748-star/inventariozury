@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inventario con Gemini IA & Publicador Social</title>
+<title>Inventario IA con Convertidor de Tallas US/MX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -97,13 +97,15 @@
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:100px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease;font-family:var(--font-body);max-width:88%;text-align:center;}
   .toast.show{opacity:1;}
   .margin-hint{font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);margin-top:6px;}
+  .size-converter-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;}
+  .size-converter-box h5{margin:0 0 8px;font-size:12px;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;}
 </style>
 </head>
 <body>
 <div id="app">
   <div class="topbar">
     <div class="topbar-row">
-      <div class="brand"><h1>Inventario IA</h1><p>Optimizado para Instagram, FB y WhatsApp</p></div>
+      <div class="brand"><h1>Inventario IA</h1><p>Con convertidor de tallas US ➔ MX</p></div>
       <button class="icon-btn" id="btnSettings" title="Ajustes">⚙️</button>
     </div>
     <div class="stats">
@@ -111,7 +113,7 @@
       <div class="stat"><b id="statUnits">0</b><span>unidades</span></div>
       <div class="stat"><b id="statValue">$0</b><span>valor inventario</span></div>
     </div>
-    <div class="search-row"><input class="search-input" id="searchInput" type="text" placeholder="Buscar producto o categoría…"></div>
+    <div class="search-row"><input class="search-input" id="searchInput" type="text" placeholder="Buscar producto, categoría o talla…"></div>
     <div class="chips" id="filterChips">
       <button class="chip active" data-filter="todos">Todos</button>
       <button class="chip" data-filter="stock">En stock</button>
@@ -123,7 +125,7 @@
   <div class="fab-wrap"><button class="fab" id="btnAdd" title="Agregar producto">+</button></div>
 </div>
 
-<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA -->
+<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA Y CONVERTIDOR DE TALLAS -->
 <div class="overlay hidden" id="formOverlay">
   <div class="sheet">
     <div class="sheet-head"><h2 id="formTitle">Nuevo producto</h2><button class="icon-btn" data-close="formOverlay">✕</button></div>
@@ -141,19 +143,37 @@
           </div>
         </div>
       </div>
+      
       <div class="field"><label>Nombre del producto *</label><input type="text" id="fName" required placeholder="Ej. Tenis Nike Air Max"></div>
+      
       <div class="field-row">
         <div class="field"><label>Categoría</label>
           <select id="fCategory"><option>Calzado</option><option>Ropa</option><option>Bolsas</option><option>Belleza</option><option>Accesorios</option><option>Hogar</option><option>Otro</option></select>
         </div>
-        <div class="field"><label>Existencias *</label><input type="number" id="fStock" min="0" step="1" required placeholder="1"></div>
+        <div class="field"><label>Departamento</label>
+          <select id="fDept"><option value="hombre">Hombre / Men</option><option value="dama">Dama / Women</option><option value="nino">Niño / Boys</option><option value="nina">Niña / Girls</option><option value="bebe">Bebé / Baby</option></select>
+        </div>
       </div>
-      <div class="field"><label>Detalles (talla, color, detalles…)</label><textarea id="fDetails" placeholder="Ej. Talla 10 USA, blancos con negro"></textarea></div>
+
+      <!-- SECCIÓN CONVERTIDOR AUTOMÁTICO DE TALLAS US/MX -->
+      <div class="size-converter-box">
+        <h5>👟👕 Convertidor de Tallas Automático</h5>
+        <div class="field-row" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:0;"><label>Talla EE.UU. (US)</label><input type="text" id="fSizeUS" placeholder="Ej. 10, 8.5, M, 4T, 2Y"></div>
+          <div class="field" style="margin-bottom:0;"><label>Equivalente MX (Auto)</label><input type="text" id="fSizeMX" readonly placeholder="Auto..." style="background:var(--bg);font-weight:700;color:var(--accent-price);"></div>
+        </div>
+      </div>
+
       <div class="field-row">
+        <div class="field"><label>Existencias *</label><input type="number" id="fStock" min="0" step="1" required placeholder="1"></div>
         <div class="field"><label>Precio de venta (MXN) *</label><input type="number" id="fPrice" min="0" step="0.01" required placeholder="0.00"></div>
-        <div class="field"><label>Costo (opcional)</label><input type="number" id="fCost" min="0" step="0.01" placeholder="0.00"></div>
       </div>
+
+      <div class="field"><label>Costo de compra (opcional)</label><input type="number" id="fCost" min="0" step="0.01" placeholder="0.00"></div>
       <div class="margin-hint" id="marginHint"></div>
+
+      <div class="field" style="margin-top:12px;"><label>Detalles adicionales (color, material, notas)</label><textarea id="fDetails" placeholder="Ej. Blancos con negro, sin caja original"></textarea></div>
+
       <div class="btn-row" style="margin-top:20px;">
         <button type="button" class="btn btn-danger" id="btnDelete" style="display:none;flex:0.6;">Eliminar</button>
         <button type="submit" class="btn btn-primary" id="btnSave">Guardar producto</button>
@@ -226,11 +246,101 @@
   function close(id){ $(id).classList.add("hidden"); }
   document.querySelectorAll("[data-close]").forEach(function(btn){ btn.addEventListener("click",function(){ close(btn.getAttribute("data-close")); }); });
 
+  // LÓGICA DE CONVERSIÓN DE TALLAS AUTOMÁTICA US -> MX
+  function convertSizeUS2MX(category, dept, sizeUS) {
+    if(!sizeUS || !sizeUS.trim()) return "";
+    var s = sizeUS.trim().toUpperCase();
+    var num = parseFloat(s.replace(/[^0-9.]/g, ''));
+
+    // 1. CALZADO / SHOES
+    if (category === "Calzado") {
+      if (isNaN(num)) return s; // Si no es un número directo
+
+      if (dept === "hombre") {
+        // Hombre: US - 2 = MX (Ej: 10 US -> 28 MX)
+        var mx = num - 2;
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } 
+      else if (dept === "dama") {
+        // Dama: US - 3 = MX (Ej: 7 US -> 24 MX)
+        var mx = num - 3;
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } 
+      else if (dept === "nino" || dept === "nina") {
+        // Niños/Niñas Youth (1Y-6Y) ó Toddler (5C-13C)
+        if (s.indexOf("Y") > -1 || (num >= 1 && num <= 6.5 && s.indexOf("C") === -1 && num < 7)) {
+          var mx = num + 19; // Ej: 1Y = 20 MX, 2Y = 21 MX, 3Y = 22 MX, 4Y = 23 MX, 5Y = 24 MX
+          return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "Y US)";
+        } else {
+          var mx = num + 6; // Ej: 8C = 14 MX, 10C = 16 MX, 12C = 18 MX
+          return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "C US)";
+        }
+      } 
+      else if (dept === "bebe") {
+        var mx = num + 6; // Ej: 4C = 10 MX, 5C = 11 MX
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      }
+    }
+
+    // 2. ROPA / CLOTHING
+    if (category === "Ropa") {
+      // Tallas en letra (S, M, L, XL, etc)
+      if (s === "XS" || s === "XCH") return "XChica / XCH (28 MX)";
+      if (s === "S" || s === "CH") return "Chica / CH (30 MX)";
+      if (s === "M") return "Mediana / M (32 MX)";
+      if (s === "L" || s === "G") return "Grande / G (34 MX)";
+      if (s === "XL" || s === "EG") return "Extra Grande / EG (36-38 MX)";
+      if (s === "XXL" || s === "2XL") return "2XL / 2EG (40 MX)";
+
+      // Tallas Infantiles / Bebés (2T, 3T, 4T, 5, 6, 8, 10, 12, etc.)
+      if (dept === "bebe") {
+        if (s.indexOf("M") > -1 || !isNaN(num)) {
+          return num + " Meses (" + num + "M US)";
+        }
+      }
+      if (dept === "nino" || dept === "nina") {
+        if (s.indexOf("T") > -1) {
+          return num + " Años (Talla " + num + " MX)";
+        }
+        if (!isNaN(num)) {
+          if (num <= 6) return num + " Años (Talla " + num + " MX)";
+          if (num <= 16) return num + " Años (Talla " + num + "-" + (num+1) + " MX)";
+        }
+      }
+
+      // Pantalones o tallas numéricas
+      if (!isNaN(num)) {
+        if (dept === "dama") {
+          // Dama tallas 0, 2, 4, 6, 8, 10, 12
+          if (num === 0 || num === 2) return "Talla 3 / 24 MX (XCH)";
+          if (num === 4 || num === 6) return "Talla 5-7 / 26-28 MX (CH-M)";
+          if (num === 8 || num === 10) return "Talla 9-11 / 30-32 MX (M-G)";
+          if (num === 12 || num === 14) return "Talla 13-15 / 34-36 MX (EG)";
+        }
+        if (dept === "hombre") {
+          return "Talla " + num + " MX (" + num + 'in US)';
+        }
+      }
+    }
+
+    return s;
+  }
+
+  function updateSizeConversion(){
+    var cat = $("fCategory").value;
+    var dept = $("fDept").value;
+    var sizeUS = $("fSizeUS").value;
+    var mx = convertSizeUS2MX(cat, dept, sizeUS);
+    $("fSizeMX").value = mx;
+  }
+
+  $("fSizeUS").addEventListener("input", updateSizeConversion);
+  $("fCategory").addEventListener("change", updateSizeConversion);
+  $("fDept").addEventListener("change", updateSizeConversion);
+
   // Compresión automática de imágenes
   function compressImage(base64Str, maxWidth, maxHeight, quality) {
-    maxWidth = maxWidth || 400;
-    maxHeight = maxHeight || 400;
-    quality = quality || 0.5;
+    maxWidth = maxWidth || 400; maxHeight = maxHeight || 400; quality = quality || 0.5;
     return new Promise(function(resolve) {
       var img = new Image();
       img.onload = function() {
@@ -285,7 +395,10 @@
     if(currentFilter==="stock" && st==="out") return false;
     if(currentFilter==="pocas" && st!=="low") return false;
     if(currentFilter==="agotado" && st!=="out") return false;
-    if(searchTerm){ var hay=(p.name+" "+p.category+" "+(p.details||"")).toLowerCase(); if(hay.indexOf(searchTerm.toLowerCase())===-1) return false; }
+    if(searchTerm){ 
+      var hay=(p.name+" "+p.category+" "+(p.size_us||"")+" "+(p.size_mx||"")+" "+(p.details||"")).toLowerCase(); 
+      if(hay.indexOf(searchTerm.toLowerCase())===-1) return false; 
+    }
     return true;
   }
   function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
@@ -301,8 +414,10 @@
       var tagText = st==="ok"?"En stock":st==="low"?"Pocas piezas":"Agotado";
       var url = p.photo_url;
       var thumb = url ? '<img class="thumb" src="'+url+'">' : '<div class="thumb-empty">📦</div>';
+      var sizeText = p.size_mx ? " · Talla: " + escapeHtml(p.size_mx) : (p.size_us ? " · Talla: " + escapeHtml(p.size_us) + " US" : "");
+
       return '<div class="row" data-id="'+p.id+'">'+thumb
-        +'<div class="row-main"><h4>'+escapeHtml(p.name)+'</h4><div class="row-meta">'+escapeHtml(p.category||"")+(p.details?" · "+escapeHtml(p.details):"")+'</div></div>'
+        +'<div class="row-main"><h4>'+escapeHtml(p.name)+'</h4><div class="row-meta">'+escapeHtml(p.category||"") + sizeText + (p.details?" · "+escapeHtml(p.details):"")+'</div></div>'
         +'<div class="row-side"><div class="row-price">'+money(p.price)+'</div><span class="tag '+tagClass+'">'+tagText+'</span></div>'
         +'<div class="row-actions"><button data-publish="'+p.id+'" title="Publicar">📲</button></div></div>';
     }).join("");
@@ -327,6 +442,9 @@
     $("btnSave").textContent = p ? "Guardar cambios" : "Guardar producto";
     $("fName").value = p ? p.name||"" : "";
     $("fCategory").value = p ? p.category||"Calzado" : "Calzado";
+    $("fDept").value = p ? p.dept||"hombre" : "hombre";
+    $("fSizeUS").value = p ? p.size_us||"" : "";
+    $("fSizeMX").value = p ? p.size_mx||"" : "";
     $("fStock").value = p ? (p.stock!=null?p.stock:"1") : "1";
     $("fDetails").value = p ? p.details||"" : "";
     $("fPrice").value = p ? (p.price!=null?p.price:"") : "";
@@ -334,6 +452,7 @@
     currentPhotoUrl = p ? p.photo_url||null : null;
     updatePhotoPreview(currentPhotoUrl);
     updateMarginHint();
+    updateSizeConversion();
     open("formOverlay");
   }
 
@@ -382,7 +501,7 @@
       }
       var base64Data = parts[1];
 
-      var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "details": "detalles clave como modelo o color"}';
+      var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "dept": "hombre|dama|nino|nina|bebe", "size_us": "talla detectada o vacio", "details": "detalles clave como modelo o color"}';
 
       var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
@@ -406,8 +525,11 @@
 
       if(parsed.name) $("fName").value = parsed.name;
       if(parsed.category) $("fCategory").value = parsed.category;
+      if(parsed.dept) $("fDept").value = parsed.dept;
+      if(parsed.size_us) $("fSizeUS").value = parsed.size_us;
       if(parsed.details) $("fDetails").value = parsed.details;
 
+      updateSizeConversion();
       toast("⚡ ¡Analizado con éxito!");
     } catch(err) {
       console.error(err);
@@ -437,30 +559,25 @@
 
     var photoUrl = pendingPhotoBase64 || currentPhotoUrl;
 
+    var productPayload = {
+      name: name,
+      category: $("fCategory").value,
+      dept: $("fDept").value,
+      size_us: $("fSizeUS").value.trim(),
+      size_mx: $("fSizeMX").value.trim(),
+      details: $("fDetails").value.trim(),
+      price: price,
+      cost: $("fCost").value ? parseFloat($("fCost").value) : null,
+      stock: stock,
+      photo_url: photoUrl
+    };
+
     if(editingId){
       var idx = products.findIndex(function(x){return x.id===editingId;});
-      if(idx!==-1){
-        products[idx] = Object.assign(products[idx], {
-          name: name,
-          category: $("fCategory").value,
-          details: $("fDetails").value.trim(),
-          price: price,
-          cost: $("fCost").value ? parseFloat($("fCost").value) : null,
-          stock: stock,
-          photo_url: photoUrl
-        });
-      }
+      if(idx!==-1){ products[idx] = Object.assign(products[idx], productPayload); }
     } else {
-      products.unshift({
-        id: "p_" + Date.now(),
-        name: name,
-        category: $("fCategory").value,
-        details: $("fDetails").value.trim(),
-        price: price,
-        cost: $("fCost").value ? parseFloat($("fCost").value) : null,
-        stock: stock,
-        photo_url: photoUrl
-      });
+      productPayload.id = "p_" + Date.now();
+      products.unshift(productPayload);
     }
 
     if(saveData()){
@@ -514,16 +631,18 @@
   function buildCaption(p, platform){
     var price=money(p.price)+" MXN";
     var details=p.details?p.details.trim():"";
+    var sizeText = p.size_mx ? "📏 Talla: " + p.size_mx : (p.size_us ? "📏 Talla US: " + p.size_us : "");
     var contact = settings.phone ? ("📲 Pedidos por WhatsApp: "+settings.phone) : "📲 Envíame mensaje privado para aparte";
     var location = settings.city ? ("📍 Entregas en: "+settings.city) : "";
     
     var catTag = (p.category || "Ventas").replace(/\s+/g, "");
-    var tags = "#" + catTag + " #Ventas " + (settings.city ? "#" + settings.city.replace(/[^a-zA-Z0-9]/g, "") + " " : "") + "#Oportunidad #Oferta #EnVenta #TiendaOnline";
+    var tags = "#" + catTag + " #Ventas " + (settings.city ? "#" + settings.city.replace(/[^a-zA-Z0-9]/g, "") + " " : "") + "#Oferta #EnVenta #TiendaOnline";
     
     var lines=[];
     if(platform==="instagram"){
       lines.push("🔥 "+p.name.toUpperCase()+" 🔥");
-      if(details) lines.push("\n✨ "+details);
+      if(sizeText) lines.push("✨ "+sizeText);
+      if(details) lines.push("📝 "+details);
       lines.push("💰 Precio: "+price);
       lines.push("📦 Disponible: "+stockLine(p));
       if(location) lines.push(location);
@@ -532,6 +651,7 @@
     } else if(platform==="facebook"){
       lines.push("🛍️ ¡DISPONIBLE PARA ENTREGA INMEDIATA!");
       lines.push("📌 "+p.name);
+      if(sizeText) lines.push(sizeText);
       if(details) lines.push("📝 "+details);
       lines.push("💵 Precio: "+price);
       lines.push("📦 "+stockLine(p));
@@ -540,6 +660,7 @@
       lines.push("\n"+tags);
     } else {
       lines.push("✨ *"+p.name+"*");
+      if(sizeText) lines.push(sizeText);
       if(details) lines.push(details);
       lines.push("💰 *"+price+"* — "+stockLine(p));
       lines.push(contact);
@@ -579,7 +700,7 @@
 
         var padding = 70;
         var maxW = 1080 - (padding * 2);
-        var maxH = 780 - (padding * 2);
+        var maxH = 750 - (padding * 2);
         var scale = Math.min(maxW / img.width, maxH / img.height);
         var w = img.width * scale;
         var h = img.height * scale;
@@ -604,6 +725,18 @@
     grad.addColorStop(1, "rgba(14, 19, 17, 0.98)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 500, 1080, 580);
+
+    // Badge Talla en la esquina superior izquierda
+    if (p.size_mx || p.size_us) {
+      var badgeText = "TALLA: " + (p.size_mx || (p.size_us + " US"));
+      ctx.font = "600 24px Inter, sans-serif";
+      var tw = ctx.measureText(badgeText).width;
+      ctx.fillStyle = "rgba(31, 75, 67, 0.9)";
+      roundRect(ctx, 40, 40, tw + 36, 48, 12);
+      ctx.fill();
+      ctx.fillStyle = "#F1ECDE";
+      ctx.fillText(badgeText, 58, 73);
+    }
 
     // Precio en grande
     ctx.fillStyle = "#E3A94A";
