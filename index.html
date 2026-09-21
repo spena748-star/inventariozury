@@ -354,7 +354,7 @@
     reader.readAsDataURL(file);
   });
 
-  // ANALIZAR CON GEMINI IA
+  // ANALIZAR CON GEMINI IA (USANDO GEMINI-3.6-FLASH)
   $("btnGeminiAnalyze").addEventListener("click", async function(){
     if(!settings.gemini_key){
       toast("Agrega primero tu Gemini API Key en Ajustes ⚙️");
@@ -373,7 +373,7 @@
 
       var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown ni texto adicional: {"name": "nombre corto y descriptivo del producto o marca", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "details": "detalles clave como modelo, color o características"}';
 
-      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + settings.gemini_key, {
+      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -536,7 +536,6 @@
     return lines.filter(Boolean).join("\n");
   }
 
-  // SOLUCIÓN INTEGRADA: Carga correcta de imágenes base64 para Canvas
   function loadImg(src){ 
     return new Promise(function(resolve,reject){ 
       var img=new Image(); 
