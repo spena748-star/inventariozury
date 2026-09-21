@@ -240,7 +240,7 @@
     var res = await sb.from('inv_products').select('*').order('created_at',{ascending:false});
     if(res.error){ 
       console.error(res.error); 
-      toast("Error al cargar: " + (res.error.message || "revisa tu conexión/permisos")); 
+      toast("Error al cargar productos: " + (res.error.message || "revisa la conexión")); 
       return; 
     }
     products = res.data || [];
@@ -354,7 +354,7 @@
         photoPath = path;
       }catch(err){ 
         console.error(err); 
-        toast("Foto no subida: " + (err.message || "revisa los permisos del Storage")); 
+        toast("Foto no subida: " + (err.message || "revisa los permisos de Storage")); 
       }
     }
 
@@ -375,7 +375,7 @@
       loadProducts();
     }catch(err){ 
       console.error(err); 
-      toast("Error al guardar: " + (err.message || err.details || "revisa políticas RLS")); 
+      toast("Error al guardar: " + (err.message || err.details || "revisa los permisos")); 
     }
     $("btnSave").disabled=false; $("btnSave").textContent = editingId ? "Guardar cambios" : "Guardar producto";
   });
