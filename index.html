@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inventario con Gemini IA</title>
+<title>Inventario con Gemini IA & Publicador Social</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -85,13 +85,13 @@
   .btn-ai{background:linear-gradient(135deg, #4285F4, #9B51E0);color:#FFF;}
   .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
   .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--accent-out-bg);}
-  .btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-row{display:flex;gap:10px;margin-top:14px;}
   .btn-row .btn{width:auto;flex:1;}
   .file-input{display:none;}
   .platform-tabs{display:flex;gap:8px;margin-bottom:14px;}
   .ptab{flex:1;border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:9px;padding:9px 4px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
   .ptab.active{background:var(--accent-primary);color:var(--accent-primary-ink);border-color:var(--accent-primary);}
-  .caption-box{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:12px;font-size:14px;font-family:var(--font-body);min-height:130px;white-space:pre-wrap;}
+  .caption-box{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:12px;font-size:14px;font-family:var(--font-body);min-height:120px;white-space:pre-wrap;}
   .canvas-wrap{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);margin-bottom:14px;}
   .canvas-wrap canvas{width:100%;height:100%;display:block;}
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:100px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease;font-family:var(--font-body);max-width:88%;text-align:center;}
@@ -165,19 +165,26 @@
 <!-- MODAL PUBLICAR EN REDES SOCIALES -->
 <div class="overlay hidden" id="publishOverlay">
   <div class="sheet">
-    <div class="sheet-head"><h2>Imagen Retocada para Redes</h2><button class="icon-btn" data-close="publishOverlay">✕</button></div>
+    <div class="sheet-head"><h2>Publicación Lista para Redes</h2><button class="icon-btn" data-close="publishOverlay">✕</button></div>
     <div class="platform-tabs" id="platformTabs">
       <button class="ptab active" data-platform="instagram">Instagram</button>
       <button class="ptab" data-platform="facebook">Facebook</button>
       <button class="ptab" data-platform="whatsapp">WhatsApp</button>
     </div>
     
+    <!-- CANVAS DONDE SE DISEÑA LA FOTO EN TIEMPO REAL -->
     <div class="canvas-wrap"><canvas id="publishCanvas"></canvas></div>
-    <div class="btn-row" style="margin-top:0;margin-bottom:14px;"><button class="btn btn-ghost" id="btnDownloadImg">⬇️ Descargar Imagen Formateada (1:1)</button></div>
+
+    <!-- BOTÓN PRINCIPAL PARA PUBLICAR FOTO EDITADA + TEXTO + HASHTAGS -->
+    <button class="btn btn-ai" id="btnShareAll" style="padding:15px;font-size:15px;margin-bottom:14px;">🚀 Compartir Publicación Completa (Foto + Texto)</button>
+
+    <div class="btn-row" style="margin-top:0;margin-bottom:14px;">
+      <button class="btn btn-ghost" id="btnDownloadImg" style="font-size:12.5px;">⬇️ Solo Foto Editada</button>
+      <button class="btn btn-ghost" id="btnCopyCaption" style="font-size:12.5px;">📋 Solo Texto y Hashtags</button>
+    </div>
     
-    <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Copy generado para la publicación</label>
+    <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Vista previa del texto y hashtags</label>
     <div class="caption-box" id="captionBox"></div>
-    <div class="btn-row"><button class="btn btn-primary" id="btnCopyCaption">📋 Copiar Texto con Hashtags</button></div>
   </div>
 </div>
 
@@ -219,7 +226,7 @@
   function close(id){ $(id).classList.add("hidden"); }
   document.querySelectorAll("[data-close]").forEach(function(btn){ btn.addEventListener("click",function(){ close(btn.getAttribute("data-close")); }); });
 
-  // Compresión ultrarrápida: Reducción a 400px y calidad 0.5 (<40 KB por foto)
+  // Compresión automática de imágenes
   function compressImage(base64Str, maxWidth, maxHeight, quality) {
     maxWidth = maxWidth || 400;
     maxHeight = maxHeight || 400;
@@ -354,7 +361,7 @@
     reader.readAsDataURL(file);
   });
 
-  // ANALIZAR CON GEMINI 3.6 FLASH
+  // ANALIZAR CON GEMINI IA
   $("btnGeminiAnalyze").addEventListener("click", async function(){
     if(!settings.gemini_key){
       toast("Agrega primero tu API Key de Gemini en Ajustes ⚙️");
@@ -364,7 +371,7 @@
     var imgSrc = pendingPhotoBase64 || currentPhotoUrl;
     if(!imgSrc){ toast("Selecciona una foto primero"); return; }
 
-    $("btnGeminiAnalyze").textContent = "⚡ Analizando en 1s…";
+    $("btnGeminiAnalyze").textContent = "⚡ Analizando…";
     $("btnGeminiAnalyze").disabled = true;
 
     try {
@@ -375,31 +382,23 @@
       }
       var base64Data = parts[1];
 
-      var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown ni texto adicional: {"name": "nombre corto y descriptivo del producto o marca", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "details": "detalles clave como modelo, color o características"}';
+      var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "details": "detalles clave como modelo o color"}';
 
-      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
+      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{
             parts: [
               { text: promptText },
-              {
-                inlineData: {
-                  mimeType: mimeType,
-                  data: base64Data
-                }
-              }
+              { inlineData: { mimeType: mimeType, data: base64Data } }
             ]
           }]
         })
       });
 
       var json = await response.json();
-
-      if(!response.ok) {
-        throw new Error(json.error ? json.error.message : "Error HTTP " + response.status);
-      }
+      if(!response.ok) throw new Error(json.error ? json.error.message : "Error HTTP " + response.status);
 
       var rawText = json.candidates[0].content.parts[0].text;
       var cleanJson = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -517,7 +516,9 @@
     var details=p.details?p.details.trim():"";
     var contact = settings.phone ? ("📲 Pedidos por WhatsApp: "+settings.phone) : "📲 Envíame mensaje privado para aparte";
     var location = settings.city ? ("📍 Entregas en: "+settings.city) : "";
-    var tags = "#Ventas #Moda #Calzado #EnVenta #Oportunidad #Oferta";
+    
+    var catTag = (p.category || "Ventas").replace(/\s+/g, "");
+    var tags = "#" + catTag + " #Ventas " + (settings.city ? "#" + settings.city.replace(/[^a-zA-Z0-9]/g, "") + " " : "") + "#Oportunidad #Oferta #EnVenta #TiendaOnline";
     
     var lines=[];
     if(platform==="instagram"){
@@ -536,6 +537,7 @@
       lines.push("📦 "+stockLine(p));
       if(location) lines.push(location);
       lines.push(contact);
+      lines.push("\n"+tags);
     } else {
       lines.push("✨ *"+p.name+"*");
       if(details) lines.push(details);
@@ -548,68 +550,54 @@
   function loadImg(src){ 
     return new Promise(function(resolve,reject){ 
       var img=new Image(); 
-      if(src && !src.startsWith("data:")){
-        img.crossOrigin="anonymous"; 
-      }
+      if(src && !src.startsWith("data:")){ img.crossOrigin="anonymous"; }
       img.onload=function(){resolve(img);}; 
       img.onerror=function(e){reject(e);}; 
       img.src=src; 
     }); 
   }
 
-  // EDICIÓN Y RETOQUE DE ESTUDIO EN CANVAS (100% GRATIS Y RÁPIDO)
+  // DIBUJO Y DISEÑO EN CANVAS DE 1080x1080
   async function renderCanvas(p) {
     var canvas = $("publishCanvas");
-    canvas.width = 1080;
-    canvas.height = 1080;
+    canvas.width = 1080; canvas.height = 1080;
     var ctx = canvas.getContext("2d");
 
-    // 1. FONDO DE ESTUDIO PROFESIONAL
+    // Fondo degradado profesional
     var bgGrad = ctx.createRadialGradient(540, 450, 100, 540, 540, 750);
     bgGrad.addColorStop(0, "#232A27");
     bgGrad.addColorStop(1, "#0E1311");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1080, 1080);
 
+    // Dibujo de foto central con sombra y retoque
     if (p.photo_url) {
       try {
         var img = await loadImg(p.photo_url);
-
         ctx.save();
-        
-        // 2. FILTROS DE RETOQUE DIGITAL (Brillo, Contraste y Saturación)
         ctx.filter = "brightness(1.08) contrast(1.15) saturate(1.10)";
 
-        // 3. ENCUADRE AUTOMÁTICO
         var padding = 70;
         var maxW = 1080 - (padding * 2);
         var maxH = 780 - (padding * 2);
-        
         var scale = Math.min(maxW / img.width, maxH / img.height);
         var w = img.width * scale;
         var h = img.height * scale;
         var x = (1080 - w) / 2;
         var y = padding + (maxH - h) / 2;
 
-        // 4. SOMBRA TRIDIMENSIONAL TIPO ESTUDIO
         ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
         ctx.shadowBlur = 35;
         ctx.shadowOffsetY = 18;
 
         ctx.drawImage(img, x, y, w, h);
         ctx.restore();
-
       } catch (e) {
         console.error("Error al procesar foto:", e);
-        ctx.fillStyle = "#786F5E"; 
-        ctx.font = "600 36px Inter, sans-serif"; 
-        ctx.textAlign = "center"; 
-        ctx.fillText("Error al cargar foto", 540, 450); 
-        ctx.textAlign = "left"; 
       }
     }
 
-    // 5. CAPA DE GRADIENTE PARA CONTRASTE DE TEXTO
+    // Overlay inferior para lectura clara de texto
     var grad = ctx.createLinearGradient(0, 550, 0, 1080);
     grad.addColorStop(0, "rgba(14, 19, 17, 0)");
     grad.addColorStop(0.65, "rgba(14, 19, 17, 0.88)");
@@ -617,17 +605,17 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0, 500, 1080, 580);
 
-    // 6. PRECIO
+    // Precio en grande
     ctx.fillStyle = "#E3A94A";
     ctx.font = "700 92px Fraunces, serif";
     ctx.fillText(money(p.price), 56, 885);
 
-    // 7. NOMBRE DEL PRODUCTO
+    // Título del producto
     ctx.fillStyle = "#F1EDE3";
     ctx.font = "600 38px Inter, sans-serif";
     wrapText(ctx, p.name, 56, 948, 968, 44);
 
-    // 8. ETIQUETA DE DISPONIBILIDAD
+    // Etiqueta de inventario si aplica
     var st = statusOf(p);
     if (st !== "ok") {
       var label = st === "out" ? "AGOTADO" : "ÚLTIMAS PIEZAS";
@@ -640,7 +628,7 @@
       ctx.fillText(label, 1080 - tw - pad - 40, 75);
     }
 
-    // 9. PIE DE PÁGINA (MARCA DE NEGOCIO)
+    // Nombre del negocio
     if (settings.business_name) {
       ctx.font = "500 26px Inter, sans-serif";
       ctx.fillStyle = "rgba(241,237,218,0.75)";
@@ -662,16 +650,59 @@
     await renderCanvas(publishProduct);
   }
 
+  // ACCIÓN DEL BOTÓN PRINCIPAL
+  $("btnShareAll").addEventListener("click", function(){
+    if(!publishProduct) return;
+    var canvas = $("publishCanvas");
+    var caption = $("captionBox").textContent;
+    var fileName = (publishProduct.name || "producto").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-social.png";
+
+    canvas.toBlob(async function(blob) {
+      if(!blob){ toast("Error al procesar la imagen"); return; }
+      var file = new File([blob], fileName, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: publishProduct.name,
+            text: caption
+          });
+          toast("¡Publicación enviada!");
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            fallbackShare(file, caption);
+          }
+        }
+      } else {
+        fallbackShare(file, caption);
+      }
+    }, "image/png");
+  });
+
+  function fallbackShare(file, caption) {
+    navigator.clipboard.writeText(caption).then(function() {
+      var url = URL.createObjectURL(file);
+      var a = document.createElement("a");
+      a.href = url; a.download = file.name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast("📋 Texto copiado y 🖼️ Foto descargada");
+    }).catch(function() {
+      toast("Descargando imagen...");
+    });
+  }
+
   $("btnCopyCaption").addEventListener("click", async function(){
     var text=$("captionBox").textContent;
-    try{ await navigator.clipboard.writeText(text); toast("Texto copiado al portapapeles"); }
-    catch(e){ toast("Selecciona y copia el texto manualmente"); }
+    try{ await navigator.clipboard.writeText(text); toast("Texto y hashtags copiados"); }
+    catch(e){ toast("Copia el texto manualmente"); }
   });
 
   $("btnDownloadImg").addEventListener("click", function(){
     var canvas=$("publishCanvas");
     canvas.toBlob(function(blob){
-      if(!blob){ toast("No se pudo generar la imagen"); return; }
+      if(!blob){ toast("Error al procesar la imagen"); return; }
       var name=(publishProduct.name||"producto").toLowerCase().replace(/[^a-z0-9]+/g,"-");
       var url=URL.createObjectURL(blob);
       var a=document.createElement("a"); a.href=url; a.download=name+"-social.png";
