@@ -1,99 +1,531 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Remoción y Cambio de Fondo en Canvas</title>
-  <style>
-    canvas {
-      border: 1px solid #ccc;
-      max-width: 100%;
-      height: auto;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inventario IA - Alta Resolución y Fondo Blanco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#F8F6F0; --surface:#FFFFFF; --text:#1C1917; --text-muted:#78716C; --border:#E7E5E4;
+    --accent-price:#B87A24; --accent-primary:#1F4B43; --accent-primary-ink:#F8F6F0;
+    --accent-ok:#2E6F40; --accent-ok-bg:#E6F4EA; --accent-low:#B45309; --accent-low-bg:#FEF3C7;
+    --accent-out:#B91C1C; --accent-out-bg:#FEE2E2; --danger:#B91C1C;
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#121212; --surface:#1E1E1E; --text:#F3F4F6; --text-muted:#9CA3AF; --border:#2E2E2E;
+      --accent-price:#F59E0B; --accent-primary:#34D399; --accent-primary-ink:#064E3B;
+      --accent-ok:#34D399; --accent-ok-bg:#064E3B; --accent-low:#FBBF24; --accent-low-bg:#78350F;
+      --accent-out:#F87171; --accent-out-bg:#7F1D1D;
     }
-  </style>
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;-webkit-font-smoothing:antialiased;}
+  #app{max-width:640px;margin:0 auto;padding-bottom:100px;min-height:100vh;position:relative;}
+  .topbar{padding:22px 18px 14px;border-bottom:1px solid var(--border);}
+  .topbar-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .brand h1{font-family:var(--font-display);font-weight:600;font-size:26px;margin:0;letter-spacing:-0.01em;}
+  .brand p{margin:2px 0 0;color:var(--text-muted);font-size:13px;}
+  .icon-btn{background:none;border:1px solid var(--border);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text);cursor:pointer;flex:none;}
+  .icon-btn:active{background:var(--border);}
+  .icon-btn.danger{color:var(--danger);border-color:var(--accent-out-bg);}
+  .stats{display:flex;gap:18px;margin-top:16px;font-family:var(--font-mono);}
+  .stat b{display:block;font-size:17px;font-weight:600;line-height:1.2;}
+  .stat span{display:block;font-family:var(--font-body);font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .search-row{display:flex;gap:8px;margin-top:16px;}
+  .search-input{flex:1;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);}
+  .search-input:focus{outline:2px solid var(--accent-primary);outline-offset:-1px;}
+  .chips{display:flex;gap:8px;margin-top:12px;overflow-x:auto;padding-bottom:2px;}
+  .chip{border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:100px;padding:6px 13px;font-size:12.5px;font-family:var(--font-body);font-weight:500;white-space:nowrap;cursor:pointer;}
+  .chip.active{background:var(--accent-primary);color:var(--accent-primary-ink);border-color:var(--accent-primary);}
+  .list{padding:6px 18px 0;}
+  .empty{text-align:center;padding:60px 20px;color:var(--text-muted);}
+  .empty .glyph{font-size:34px;display:block;margin-bottom:10px;}
+  .empty h3{font-family:var(--font-display);color:var(--text);font-weight:600;font-size:18px;margin:0 0 6px;}
+  .empty p{font-size:13.5px;margin:0;line-height:1.5;}
+  .row{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+  .thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;flex:none;background:var(--surface);border:1px solid var(--border);}
+  .thumb-empty{width:64px;height:64px;border-radius:8px;flex:none;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);}
+  .row-main{flex:1;min-width:0;}
+  .row-main h4{font-family:var(--font-display);font-weight:600;font-size:15.5px;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-meta{color:var(--text-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-side{text-align:right;flex:none;}
+  .row-price{font-family:var(--font-mono);font-weight:600;font-size:15px;}
+  .tag{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:100px;margin-top:4px;font-family:var(--font-body);}
+  .tag-ok{background:var(--accent-ok-bg);color:var(--accent-ok);}
+  .tag-low{background:var(--accent-low-bg);color:var(--accent-low);}
+  .tag-out{background:var(--accent-out-bg);color:var(--accent-out);}
+  .row-actions{display:flex;gap:6px;flex:none;}
+  .row-actions button{border:1px solid var(--border);background:var(--surface);border-radius:7px;width:34px;height:34px;font-size:15px;cursor:pointer;color:var(--text);}
+  .fab{position:fixed;right:18px;bottom:24px;width:56px;height:56px;border-radius:16px;background:var(--accent-primary);color:var(--accent-primary-ink);border:none;font-size:26px;box-shadow:0 6px 16px rgba(0,0,0,0.22);cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;}
+  .fab-wrap{max-width:640px;margin:0 auto;position:relative;}
+  .overlay{position:fixed;inset:0;background:rgba(10,10,8,0.5);z-index:40;display:flex;align-items:flex-end;justify-content:center;}
+  .overlay.hidden{display:none;}
+  .sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:20px 18px 28px;position:relative;border-top:1px solid var(--border);}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .sheet-head h2{font-family:var(--font-display);font-size:20px;font-weight:600;margin:0;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;}
+  .field input[type=text],.field input[type=number],.field input[type=tel],.field input[type=password],.field select,.field textarea{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:11px 12px;font-size:15px;font-family:var(--font-body);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .photo-picker{display:flex;align-items:center;gap:12px;}
+  .photo-preview{width:84px;height:84px;border-radius:10px;object-fit:cover;background:var(--surface);border:1px solid var(--border);flex:none;}
+  .photo-preview-empty{width:84px;height:84px;border-radius:10px;background:var(--surface);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text-muted);flex:none;}
+  .btn{border:none;border-radius:10px;padding:13px 18px;font-size:14.5px;font-weight:600;font-family:var(--font-body);cursor:pointer;width:100%;}
+  .btn-primary{background:var(--accent-primary);color:var(--accent-primary-ink);}
+  .btn-ai{background:linear-gradient(135deg, #2563EB, #7C3AED);color:#FFF;}
+  .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--accent-out-bg);}
+  .btn-row{display:flex;gap:10px;margin-top:14px;}
+  .btn-row .btn{width:auto;flex:1;}
+  .file-input{display:none;}
+  .platform-tabs{display:flex;gap:8px;margin-bottom:14px;}
+  .ptab{flex:1;border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:9px;padding:9px 4px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
+  .ptab.active{background:var(--accent-primary);color:var(--accent-primary-ink);border-color:var(--accent-primary);}
+  .caption-box{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:12px;font-size:14px;font-family:var(--font-body);min-height:120px;white-space:pre-wrap;}
+  .canvas-wrap{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#FFFFFF;border:1px solid var(--border);margin-bottom:14px;box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+  .canvas-wrap canvas{width:100%;height:100%;display:block;}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:100px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease;font-family:var(--font-body);max-width:88%;text-align:center;}
+  .toast.show{opacity:1;}
+  .margin-hint{font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);margin-top:6px;}
+  .size-converter-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;}
+  .size-converter-box h5{margin:0 0 8px;font-size:12px;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;}
+</style>
 </head>
 <body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <h1>Inventario IA HD</h1>
+        <p>Alta Definición & Fondo Blanco Elegante</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="icon-btn danger" id="btnDeleteOut" title="Borrar productos agotados (Stock 0)">🗑️</button>
+        <button class="icon-btn" id="btnSettings" title="Ajustes">⚙️</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="statCount">0</b><span>productos</span></div>
+      <div class="stat"><b id="statUnits">0</b><span>unidades</span></div>
+      <div class="stat"><b id="statValue">$0</b><span>valor inventario</span></div>
+    </div>
+    <div class="search-row"><input class="search-input" id="searchInput" type="text" placeholder="Buscar producto, categoría o talla…"></div>
+    <div class="chips" id="filterChips">
+      <button class="chip active" data-filter="todos">Todos</button>
+      <button class="chip" data-filter="stock">En stock</button>
+      <button class="chip" data-filter="pocas">Pocas piezas</button>
+      <button class="chip" data-filter="agotado">Agotado</button>
+    </div>
+  </div>
+  <div class="list" id="list"></div>
+  <div class="fab-wrap"><button class="fab" id="btnAdd" title="Agregar producto">+</button></div>
+</div>
 
-  <canvas id="miCanvas" width="800" height="800"></canvas>
+<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA AUTOMÁTICO -->
+<div class="overlay hidden" id="formOverlay">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="formTitle">Nuevo producto</h2><button class="icon-btn" data-close="formOverlay">✕</button></div>
+    <form id="productForm">
+      <div class="field"><label>Foto del producto (Alta Resolución HD)</label>
+        <div class="photo-picker">
+          <img id="photoPreview" class="photo-preview" style="display:none;">
+          <div id="photoPreviewEmpty" class="photo-preview-empty">📷</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;gap:6px;">
+              <button type="button" class="btn btn-ghost" id="btnPickPhoto" style="padding:9px 12px;font-size:13px;">Tomar / Seleccionar foto</button>
+              <input class="file-input" type="file" id="photoInput" accept="image/*" capture="environment">
+            </div>
+            <button type="button" class="btn btn-ai" id="btnGeminiAnalyze" style="padding:9px 12px;font-size:13px;display:none;">⚡ Reanalizar con Gemini IA</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="field"><label>Nombre del producto *</label><input type="text" id="fName" required placeholder="Ej. Tenis Nike Air Max"></div>
+      
+      <div class="field-row">
+        <div class="field"><label>Categoría</label>
+          <select id="fCategory"><option>Calzado</option><option>Ropa</option><option>Bolsas</option><option>Belleza</option><option>Accesorios</option><option>Hogar</option><option>Otro</option></select>
+        </div>
+        <div class="field"><label>Departamento</label>
+          <select id="fDept"><option value="hombre">Hombre / Men</option><option value="dama">Dama / Women</option><option value="nino">Niño / Boys</option><option value="nina">Niña / Girls</option><option value="bebe">Bebé / Baby</option></select>
+        </div>
+      </div>
 
-  <script type="module">
-    import removeBackground from "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm";
+      <!-- CONVERTIDOR AUTOMÁTICO DE TALLAS US/MX -->
+      <div class="size-converter-box">
+        <h5>👟👕 Convertidor de Tallas Automático</h5>
+        <div class="field-row" style="margin-bottom:0;">
+          <div class="field" style="margin-bottom:0;"><label>Talla EE.UU. (US)</label><input type="text" id="fSizeUS" placeholder="Ej. 10, 8.5, M, 4T, 2Y"></div>
+          <div class="field" style="margin-bottom:0;"><label>Equivalente MX (Auto)</label><input type="text" id="fSizeMX" readonly placeholder="Auto..." style="background:var(--bg);font-weight:700;color:var(--accent-price);"></div>
+        </div>
+      </div>
 
-    /**
-     * Procesa la imagen con la IA, remueve el fondo y dibuja la composición en el canvas.
-     * @param {string} canvasId - ID del <canvas>
-     * @param {string} urlArticulo - URL o DataURL de la imagen del producto
-     * @param {string} nuevoFondo - Color Hex/RGB (ej: "#ffffff") o URL de una imagen de fondo
-     */
-    async function cambiarFondoArticulo(canvasId, urlArticulo, nuevoFondo) {
-      const canvas = document.getElementById(canvasId);
-      const ctx = canvas.getContext("2d");
+      <div class="field-row">
+        <div class="field"><label>Existencias *</label><input type="number" id="fStock" min="0" step="1" required placeholder="1"></div>
+        <div class="field"><label>Precio de venta (MXN) *</label><input type="number" id="fPrice" min="0" step="0.01" required placeholder="0.00"></div>
+      </div>
 
-      try {
-        // 1. Remover el fondo mediante IA
-        const blobTransparente = await removeBackground(urlArticulo, {
-          fetchArgs: { mode: 'cors' }
-        });
+      <div class="field"><label>Costo de compra (opcional)</label><input type="number" id="fCost" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="margin-hint" id="marginHint"></div>
 
-        // 2. Crear ObjectURL para la imagen sin fondo
-        const urlSinFondo = URL.createObjectURL(blobTransparente);
+      <div class="field" style="margin-top:12px;"><label>Detalles adicionales (color, material, notas)</label><textarea id="fDetails" placeholder="Ej. Blancos con negro, sin caja original"></textarea></div>
 
-        // 3. Cargar asíncronamente la imagen procesada
-        const imgArticulo = await cargarImagen(urlSinFondo);
+      <div class="btn-row" style="margin-top:20px;">
+        <button type="button" class="btn btn-danger" id="btnDelete" style="display:none;flex:0.6;">Eliminar</button>
+        <button type="submit" class="btn btn-primary" id="btnSave">Guardar producto</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-        // 4. Limpiar el Canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+<!-- MODAL PUBLICAR EN REDES SOCIALES -->
+<div class="overlay hidden" id="publishOverlay">
+  <div class="sheet">
+    <div class="sheet-head"><h2>Publicación Fondo Blanco Elegante</h2><button class="icon-btn" data-close="publishOverlay">✕</button></div>
+    <div class="platform-tabs" id="platformTabs">
+      <button class="ptab active" data-platform="instagram">Instagram</button>
+      <button class="ptab" data-platform="facebook">Facebook</button>
+      <button class="ptab" data-platform="whatsapp">WhatsApp</button>
+    </div>
+    
+    <div class="canvas-wrap"><canvas id="publishCanvas"></canvas></div>
 
-        // 5. Dibujar Fondo y Producto en el orden correcto
-        if (esColor(nuevoFondo)) {
-          // Fondo de color sólido
-          ctx.fillStyle = nuevoFondo;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          dibujarCentrado(ctx, imgArticulo, canvas.width, canvas.height);
+    <button class="btn" id="btnRemoveBg" style="background:#1F4B43;color:#FFF;padding:12px;font-size:14px;margin-bottom:12px;border:none;">
+      ✨ Quitar fondo actual con IA y colocar en Blanco Puro
+    </button>
+
+    <button class="btn btn-ai" id="btnShareAll" style="padding:15px;font-size:15px;margin-bottom:14px;">🚀 Compartir Publicación Completa (Foto + Texto)</button>
+
+    <div class="btn-row" style="margin-top:0;margin-bottom:14px;">
+      <button class="btn btn-ghost" id="btnDownloadImg" style="font-size:12.5px;">⬇️ Solo Foto Editada</button>
+      <button class="btn btn-ghost" id="btnCopyCaption" style="font-size:12.5px;">📋 Solo Texto y Hashtags</button>
+    </div>
+    
+    <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Vista previa del texto</label>
+    <div class="caption-box" id="captionBox"></div>
+  </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN -->
+<div class="overlay hidden" id="settingsOverlay">
+  <div class="sheet">
+    <div class="sheet-head"><h2>Ajustes</h2><button class="icon-btn" data-close="settingsOverlay">✕</button></div>
+    <form id="settingsForm">
+      <div class="field"><label>Gemini API Key (Google AI Studio)</label><input type="password" id="sGeminiKey" placeholder="Pega tu API Key aquí"></div>
+      <div class="field"><label>Nombre de tu negocio</label><input type="text" id="sBusinessName" placeholder="Ej. Mis Ventas"></div>
+      <div class="field"><label>Ciudad / Ubicación</label><input type="text" id="sCity" placeholder="Ej. Ciudad Juárez, Chih."></div>
+      <div class="field"><label>WhatsApp de contacto</label><input type="tel" id="sPhone" placeholder="Ej. 656 123 4567"></div>
+      <button type="submit" class="btn btn-primary" style="margin-top:6px;">Guardar Ajustes</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "local_inventory_products";
+  var SETTINGS_KEY = "local_inventory_settings";
+
+  var products = [];
+  var settings = {business_name:"", city:"", phone:"", gemini_key:""};
+
+  // LECTURA SEGURA DE LOCALSTORAGE
+  try {
+    var rawProd = localStorage.getItem(STORAGE_KEY);
+    if(rawProd) products = JSON.parse(rawProd);
+    var rawSet = localStorage.getItem(SETTINGS_KEY);
+    if(rawSet) settings = JSON.parse(rawSet);
+  } catch(e) {
+    console.warn("localStorage inaccesible o restringido:", e);
+  }
+
+  var currentFilter="todos", searchTerm="";
+  var editingId=null, pendingPhotoBase64=null, currentPhotoUrl=null;
+  var publishProduct=null, publishPlatform="instagram";
+  var currentProcessedImgUrl = null;
+  var LOW_STOCK=2;
+
+  function $(id){ return document.getElementById(id); }
+  function money(n){ n=Number(n)||0; return "$"+n.toLocaleString('es-MX',{maximumFractionDigits:0}); }
+  function toast(msg){ var t=$("toast"); if(!t)return; t.textContent=msg; t.classList.add("show"); clearTimeout(toast._h); toast._h=setTimeout(function(){t.classList.remove("show");},3500); }
+  function open(id){ $(id).classList.remove("hidden"); }
+  function close(id){ $(id).classList.add("hidden"); }
+  document.querySelectorAll("[data-close]").forEach(function(btn){ btn.addEventListener("click",function(){ close(btn.getAttribute("data-close")); }); });
+
+  // CONVERSIÓN DE TALLAS US -> MX
+  function convertSizeUS2MX(category, dept, sizeUS) {
+    if(!sizeUS || !sizeUS.trim()) return "";
+    var s = sizeUS.trim().toUpperCase();
+    var num = parseFloat(s.replace(/[^0-9.]/g, ''));
+
+    if (category === "Calzado") {
+      if (isNaN(num)) return s;
+      if (dept === "hombre") {
+        var mx = num - 2; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } else if (dept === "dama") {
+        var mx = num - 3; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } else if (dept === "nino" || dept === "nina") {
+        if (s.indexOf("Y") > -1 || (num >= 1 && num <= 6.5 && s.indexOf("C") === -1 && num < 7)) {
+          var mx = num + 19; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "Y US)";
         } else {
-          // Fondo de imagen
-          const imgFondo = await cargarImagen(nuevoFondo);
-          ctx.drawImage(imgFondo, 0, 0, canvas.width, canvas.height);
-          dibujarCentrado(ctx, imgArticulo, canvas.width, canvas.height);
+          var mx = num + 6; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "C US)";
         }
-
-        // 6. Liberar memoria
-        URL.revokeObjectURL(urlSinFondo);
-
-      } catch (error) {
-        console.error("Error al procesar y cambiar el fondo:", error);
+      } else if (dept === "bebe") {
+        var mx = num + 6; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
       }
     }
 
-    // Carga de imágenes con promesas y CORS habilitado
-    function cargarImagen(url) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => resolve(img);
-        img.onerror = (err) => reject(new Error(`No se pudo cargar la imagen: ${url}`));
-        img.src = url;
+    if (category === "Ropa") {
+      if (s === "XS" || s === "XCH") return "XChica / XCH (28 MX)";
+      if (s === "S" || s === "CH") return "Chica / CH (30 MX)";
+      if (s === "M") return "Mediana / M (32 MX)";
+      if (s === "L" || s === "G") return "Grande / G (34 MX)";
+      if (s === "XL" || s === "EG") return "Extra Grande / EG (36-38 MX)";
+      if (s === "XXL" || s === "2XL") return "2XL / 2EG (40 MX)";
+
+      if (dept === "bebe" && (s.indexOf("M") > -1 || !isNaN(num))) return num + " Meses (" + num + "M US)";
+      if (dept === "nino" || dept === "nina") {
+        if (s.indexOf("T") > -1) return num + " Años (Talla " + num + " MX)";
+        if (!isNaN(num)) {
+          if (num <= 6) return num + " Años (Talla " + num + " MX)";
+          if (num <= 16) return num + " Años (Talla " + num + "-" + (num+1) + " MX)";
+        }
+      }
+      if (!isNaN(num)) {
+        if (dept === "dama") {
+          if (num === 0 || num === 2) return "Talla 3 / 24 MX (XCH)";
+          if (num === 4 || num === 6) return "Talla 5-7 / 26-28 MX (CH-M)";
+          if (num === 8 || num === 10) return "Talla 9-11 / 30-32 MX (M-G)";
+          if (num === 12 || num === 14) return "Talla 13-15 / 34-36 MX (EG)";
+        }
+        if (dept === "hombre") return "Talla " + num + " MX (" + num + 'in US)';
+      }
+    }
+    return s;
+  }
+
+  function updateSizeConversion(){
+    var cat = $("fCategory").value;
+    var dept = $("fDept").value;
+    var sizeUS = $("fSizeUS").value;
+    $("fSizeMX").value = convertSizeUS2MX(cat, dept, sizeUS);
+  }
+
+  $("fSizeUS").addEventListener("input", updateSizeConversion);
+  $("fCategory").addEventListener("change", updateSizeConversion);
+  $("fDept").addEventListener("change", updateSizeConversion);
+
+  function compressImage(base64Str, maxWidth, maxHeight, quality) {
+    maxWidth = maxWidth || 1200; maxHeight = maxHeight || 1200; quality = quality || 0.85;
+    return new Promise(function(resolve) {
+      var img = new Image();
+      img.onload = function() {
+        var width = img.width, height = img.height;
+        if (width > height) {
+          if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+        } else {
+          if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = function() { resolve(base64Str); };
+      img.src = base64Str;
+    });
+  }
+
+  function saveData(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      renderList();
+      renderStats();
+      return true;
+    } catch(e) {
+      console.error(e);
+      toast("⚠️ Memoria del navegador llena o restringida.");
+      renderList();
+      renderStats();
+      return false;
+    }
+  }
+
+  function init(){
+    $("sGeminiKey").value = settings.gemini_key || "";
+    $("sBusinessName").value = settings.business_name || "";
+    $("sCity").value = settings.city || "";
+    $("sPhone").value = settings.phone || "";
+    renderList();
+    renderStats();
+  }
+
+  function renderStats(){
+    var count=products.length, units=0, value=0;
+    products.forEach(function(p){ units += Number(p.stock)||0; value += (Number(p.stock)||0)*(Number(p.price)||0); });
+    $("statCount").textContent=count; $("statUnits").textContent=units; $("statValue").textContent=money(value);
+  }
+
+  function statusOf(p){ var s=Number(p.stock)||0; if(s<=0) return "out"; if(s<=LOW_STOCK) return "low"; return "ok"; }
+  function passesFilter(p){
+    var st=statusOf(p);
+    if(currentFilter==="stock" && st==="out") return false;
+    if(currentFilter==="pocas" && st!=="low") return false;
+    if(currentFilter==="agotado" && st!=="out") return false;
+    if(searchTerm){ 
+      var hay=(p.name+" "+p.category+" "+(p.size_us||"")+" "+(p.size_mx||"")+" "+(p.details||"")).toLowerCase(); 
+      if(hay.indexOf(searchTerm.toLowerCase())===-1) return false; 
+    }
+    return true;
+  }
+  function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+
+  function renderList(){
+    var list=$("list");
+    var visible=products.filter(passesFilter);
+    if(products.length===0){ list.innerHTML='<div class="empty"><span class="glyph">🏷️</span><h3>Aún no hay productos</h3><p>Toca el botón + para agregar tu primer producto.</p></div>'; return; }
+    if(visible.length===0){ list.innerHTML='<div class="empty"><span class="glyph">🔎</span><h3>Sin resultados</h3><p>Prueba con otro filtro o término de búsqueda.</p></div>'; return; }
+    list.innerHTML = visible.map(function(p){
+      var st=statusOf(p);
+      var tagClass = st==="ok"?"tag-ok":st==="low"?"tag-low":"tag-out";
+      var tagText = st==="ok"?"En stock":st==="low"?"Pocas piezas":"Agotado";
+      var url = p.photo_url;
+      var thumb = url ? '<img class="thumb" src="'+url+'">' : '<div class="thumb-empty">📦</div>';
+      var sizeText = p.size_mx ? " · Talla: " + escapeHtml(p.size_mx) : (p.size_us ? " · Talla: " + escapeHtml(p.size_us) + " US" : "");
+
+      return '<div class="row" data-id="'+p.id+'">'+thumb
+        +'<div class="row-main"><h4>'+escapeHtml(p.name)+'</h4><div class="row-meta">'+escapeHtml(p.category||"") + sizeText + (p.details?" · "+escapeHtml(p.details):"")+'</div></div>'
+        +'<div class="row-side"><div class="row-price">'+money(p.price)+'</div><span class="tag '+tagClass+'">'+tagText+'</span></div>'
+        +'<div class="row-actions"><button data-publish="'+p.id+'" title="Publicar">📲</button></div></div>';
+    }).join("");
+    list.querySelectorAll(".row").forEach(function(row){ row.addEventListener("click",function(e){ if(e.target.closest("[data-publish]")) return; openEdit(row.getAttribute("data-id")); }); });
+    list.querySelectorAll("[data-publish]").forEach(function(btn){ btn.addEventListener("click",function(e){ e.stopPropagation(); openPublish(btn.getAttribute("data-publish")); }); });
+  }
+
+  $("searchInput").addEventListener("input", function(e){ searchTerm=e.target.value; renderList(); });
+  $("filterChips").addEventListener("click", function(e){
+    var chip=e.target.closest(".chip"); if(!chip) return;
+    document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("active");});
+    chip.classList.add("active"); currentFilter=chip.getAttribute("data-filter"); renderList();
+  });
+
+  $("btnDeleteOut").addEventListener("click", function(){
+    var outItems = products.filter(function(p){ return (Number(p.stock) || 0) <= 0; });
+    if(outItems.length === 0){
+      toast("No hay productos agotados para eliminar.");
+      return;
+    }
+    if(confirm("¿Eliminar permanentemente " + outItems.length + " producto(s) agotado(s)?")){
+      products = products.filter(function(p){ return (Number(p.stock) || 0) > 0; });
+      saveData();
+      toast("🗑️ Se eliminaron los productos agotados");
+    }
+  });
+
+  $("btnAdd").addEventListener("click", function(){ openEdit(null); });
+
+  function openEdit(id){
+    editingId=id; pendingPhotoBase64=null;
+    var p = id ? products.find(function(x){return x.id===id;}) : null;
+    $("formTitle").textContent = p ? "Editar producto" : "Nuevo producto";
+    $("btnDelete").style.display = p ? "block" : "none";
+    $("btnSave").textContent = p ? "Guardar cambios" : "Guardar producto";
+    $("fName").value = p ? p.name||"" : "";
+    $("fCategory").value = p ? p.category||"Calzado" : "Calzado";
+    $("fDept").value = p ? p.dept||"hombre" : "hombre";
+    $("fSizeUS").value = p ? p.size_us||"" : "";
+    $("fSizeMX").value = p ? p.size_mx||"" : "";
+    $("fStock").value = p ? (p.stock!=null?p.stock:"1") : "1";
+    $("fDetails").value = p ? p.details||"" : "";
+    $("fPrice").value = p ? (p.price!=null?p.price:"") : "";
+    $("fCost").value = p ? (p.cost!=null?p.cost:"") : "";
+    currentPhotoUrl = p ? p.photo_url||null : null;
+    updatePhotoPreview(currentPhotoUrl);
+    updateMarginHint();
+    updateSizeConversion();
+    open("formOverlay");
+  }
+
+  function updatePhotoPreview(src){
+    if(src){ 
+      $("photoPreview").src=src; 
+      $("photoPreview").style.display="block"; 
+      $("photoPreviewEmpty").style.display="none"; 
+      $("btnGeminiAnalyze").style.display="block";
+    } else { 
+      $("photoPreview").style.display="none"; 
+      $("photoPreviewEmpty").style.display="flex"; 
+      $("btnGeminiAnalyze").style.display="none";
+    }
+  }
+
+  $("btnPickPhoto").addEventListener("click", function(){ $("photoInput").click(); });
+
+  $("photoInput").addEventListener("change", function(e){
+    var file=e.target.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = async function(evt){
+      pendingPhotoBase64 = await compressImage(evt.target.result, 1200, 1200, 0.85);
+      updatePhotoPreview(pendingPhotoBase64);
+      analyzeImageWithGemini();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  async function analyzeImageWithGemini(){
+    if(!settings.gemini_key){
+      toast("Foto HD cargada. (Agrega tu API Key de Gemini en Ajustes ⚙️ para autocompletar)");
+      return;
+    }
+    var imgSrc = pendingPhotoBase64 || currentPhotoUrl;
+    if(!imgSrc){ return; }
+
+    $("btnGeminiAnalyze").textContent = "⚡ Analizando en HD con IA…";
+    $("btnGeminiAnalyze").disabled = true;
+    toast("⚡ Analizando foto HD con IA…");
+
+    try {
+      var parts = imgSrc.split(',');
+      var mimeType = "image/jpeg";
+      if (parts[0].indexOf(":") > -1 && parts[0].indexOf(";") > -1) {
+        mimeType = parts[0].substring(parts[0].indexOf(":") + 1, parts[0].indexOf(";"));
+      }
+      var base64Data = parts[1];
+
+      var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "dept": "hombre|dama|nino|nina|bebe", "size_us": "talla detectada o vacio", "details": "detalles clave como modelo o color"}';
+
+      var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: promptText },
+              { inlineData: { mimeType: mimeType, data: base64Data } }
+            ]
+          }]
+        })
       });
-    }
 
-    // Determina si el valor es un color sólido o una URL
-    function esColor(valor) {
-      return valor.startsWith("#") || valor.startsWith("rgb") || valor.startsWith("hsl");
-    }
+      var json = await response.json();
+      if(!response.ok) throw new Error(json.error ? json.error.message : "Error HTTP " + response.status);
 
-    // Escala y centra la imagen del producto sin deformarla
-    function dibujarCentrado(ctx, img, canvasWidth, canvasHeight) {
-      const ratio = Math.min(canvasWidth / img.width, canvasHeight / img.height);
-      const nuevoAncho = img.width * ratio;
-      const nuevoAlto = img.height * ratio;
-      const posX = (canvasWidth - nuevoAncho) / 2;
-      const posY = (canvasHeight - nuevoAlto) / 2;
-
-      ctx.drawImage(img, 0, 0, img.width, img.height, posX, posY, nuevoAncho, nuevoAlto);
-    }
-
-    // EJEMPLO DE USO:
-    // cambiarFondoArticulo("miCanvas", "https://tu-servidor.com/producto.jpg", "#f2f2f2");
-    // cambiarFondoArticulo("miCanvas", "https://tu-servidor.com/producto.jpg", "https://tu-servidor.com/fondo.jpg");
-  </script>
-</body>
-</html>
+      var rawText = json.candidates[0].content.parts[0].text;
+      var cleanJson = rawText.replace(/```json/gi, "").replace(/
