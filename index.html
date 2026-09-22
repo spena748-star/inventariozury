@@ -3,27 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inventario IA - Alta Resolución y Fondo Blanco</title>
+<title>Inventario IA con Convertidor de Tallas US/MX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --bg:#F8F6F0; --surface:#FFFFFF; --text:#1C1917; --text-muted:#78716C; --border:#E7E5E4;
-    --accent-price:#B87A24; --accent-primary:#1F4B43; --accent-primary-ink:#F8F6F0;
-    --accent-ok:#2E6F40; --accent-ok-bg:#E6F4EA; --accent-low:#B45309; --accent-low-bg:#FEF3C7;
-    --accent-out:#B91C1C; --accent-out-bg:#FEE2E2; --danger:#B91C1C;
-    --font-display:'Fraunces', Georgia, serif;
+    --bg:#F1ECDE; --surface:#FBF8F1; --text:#221D16; --text-muted:#786F5E; --border:#DED3BB;
+    --accent-price:#B87A24; --accent-primary:#1F4B43; --accent-primary-ink:#F1ECDE;
+    --accent-ok:#3E6B52; --accent-ok-bg:#E2ECE3; --accent-low:#A85A22; --accent-low-bg:#F3E3D3;
+    --accent-out:#96392A; --accent-out-bg:#F0DCD6; --danger:#96392A;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
     --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-mono:'IBM Plex Mono', monospace;
+    --font-mono:'IBM Plex Mono', 'Courier New', monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --bg:#121212; --surface:#1E1E1E; --text:#F3F4F6; --text-muted:#9CA3AF; --border:#2E2E2E;
-      --accent-price:#F59E0B; --accent-primary:#34D399; --accent-primary-ink:#064E3B;
-      --accent-ok:#34D399; --accent-ok-bg:#064E3B; --accent-low:#FBBF24; --accent-low-bg:#78350F;
-      --accent-out:#F87171; --accent-out-bg:#7F1D1D;
+      --bg:#161C19; --surface:#1E2724; --text:#EDE8DA; --text-muted:#9C9284; --border:#303B36;
+      --accent-price:#E3A94A; --accent-primary:#7FBFAE; --accent-primary-ink:#122320;
+      --accent-ok:#8AC7A5; --accent-ok-bg:#20332A; --accent-low:#E3A16A; --accent-low-bg:#3A2C1E;
+      --accent-out:#E58B78; --accent-out-bg:#3A2420;
     }
   }
   *{box-sizing:border-box;}
@@ -36,7 +36,6 @@
   .brand p{margin:2px 0 0;color:var(--text-muted);font-size:13px;}
   .icon-btn{background:none;border:1px solid var(--border);border-radius:8px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text);cursor:pointer;flex:none;}
   .icon-btn:active{background:var(--border);}
-  .icon-btn.danger{color:var(--danger);border-color:var(--accent-out-bg);}
   .stats{display:flex;gap:18px;margin-top:16px;font-family:var(--font-mono);}
   .stat b{display:block;font-size:17px;font-weight:600;line-height:1.2;}
   .stat span{display:block;font-family:var(--font-body);font-size:11px;color:var(--text-muted);margin-top:2px;}
@@ -52,8 +51,8 @@
   .empty h3{font-family:var(--font-display);color:var(--text);font-weight:600;font-size:18px;margin:0 0 6px;}
   .empty p{font-size:13.5px;margin:0;line-height:1.5;}
   .row{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;}
-  .thumb{width:64px;height:64px;border-radius:8px;object-fit:cover;flex:none;background:var(--surface);border:1px solid var(--border);}
-  .thumb-empty{width:64px;height:64px;border-radius:8px;flex:none;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);}
+  .thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:none;background:var(--surface);border:1px solid var(--border);}
+  .thumb-empty{width:56px;height:56px;border-radius:8px;flex:none;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text-muted);}
   .row-main{flex:1;min-width:0;}
   .row-main h4{font-family:var(--font-display);font-weight:600;font-size:15.5px;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row-meta{color:var(--text-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -64,7 +63,7 @@
   .tag-low{background:var(--accent-low-bg);color:var(--accent-low);}
   .tag-out{background:var(--accent-out-bg);color:var(--accent-out);}
   .row-actions{display:flex;gap:6px;flex:none;}
-  .row-actions button{border:1px solid var(--border);background:var(--surface);border-radius:7px;width:34px;height:34px;font-size:15px;cursor:pointer;color:var(--text);}
+  .row-actions button{border:1px solid var(--border);background:var(--surface);border-radius:7px;width:32px;height:32px;font-size:14px;cursor:pointer;color:var(--text);}
   .fab{position:fixed;right:18px;bottom:24px;width:56px;height:56px;border-radius:16px;background:var(--accent-primary);color:var(--accent-primary-ink);border:none;font-size:26px;box-shadow:0 6px 16px rgba(0,0,0,0.22);cursor:pointer;z-index:20;display:flex;align-items:center;justify-content:center;}
   .fab-wrap{max-width:640px;margin:0 auto;position:relative;}
   .overlay{position:fixed;inset:0;background:rgba(10,10,8,0.5);z-index:40;display:flex;align-items:flex-end;justify-content:center;}
@@ -79,11 +78,11 @@
   .field-row{display:flex;gap:10px;}
   .field-row .field{flex:1;}
   .photo-picker{display:flex;align-items:center;gap:12px;}
-  .photo-preview{width:84px;height:84px;border-radius:10px;object-fit:cover;background:var(--surface);border:1px solid var(--border);flex:none;}
-  .photo-preview-empty{width:84px;height:84px;border-radius:10px;background:var(--surface);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text-muted);flex:none;}
+  .photo-preview{width:76px;height:76px;border-radius:10px;object-fit:cover;background:var(--surface);border:1px solid var(--border);flex:none;}
+  .photo-preview-empty{width:76px;height:76px;border-radius:10px;background:var(--surface);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);flex:none;}
   .btn{border:none;border-radius:10px;padding:13px 18px;font-size:14.5px;font-weight:600;font-family:var(--font-body);cursor:pointer;width:100%;}
   .btn-primary{background:var(--accent-primary);color:var(--accent-primary-ink);}
-  .btn-ai{background:linear-gradient(135deg, #2563EB, #7C3AED);color:#FFF;}
+  .btn-ai{background:linear-gradient(135deg, #4285F4, #9B51E0);color:#FFF;}
   .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border);}
   .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--accent-out-bg);}
   .btn-row{display:flex;gap:10px;margin-top:14px;}
@@ -93,7 +92,7 @@
   .ptab{flex:1;border:1px solid var(--border);background:transparent;color:var(--text-muted);border-radius:9px;padding:9px 4px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
   .ptab.active{background:var(--accent-primary);color:var(--accent-primary-ink);border-color:var(--accent-primary);}
   .caption-box{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:9px;padding:12px;font-size:14px;font-family:var(--font-body);min-height:120px;white-space:pre-wrap;}
-  .canvas-wrap{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#FFFFFF;border:1px solid var(--border);margin-bottom:14px;box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
+  .canvas-wrap{width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);margin-bottom:14px;}
   .canvas-wrap canvas{width:100%;height:100%;display:block;}
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:100px;font-size:13.5px;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s ease;font-family:var(--font-body);max-width:88%;text-align:center;}
   .toast.show{opacity:1;}
@@ -106,14 +105,8 @@
 <div id="app">
   <div class="topbar">
     <div class="topbar-row">
-      <div class="brand">
-        <h1>Inventario IA HD</h1>
-        <p>Alta Definición & Fondo Blanco Elegante</p>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button class="icon-btn danger" id="btnDeleteOut" title="Borrar productos agotados (Stock 0)">🗑️</button>
-        <button class="icon-btn" id="btnSettings" title="Ajustes">⚙️</button>
-      </div>
+      <div class="brand"><h1>Inventario IA</h1><p>Con convertidor de tallas US ➔ MX</p></div>
+      <button class="icon-btn" id="btnSettings" title="Ajustes">⚙️</button>
     </div>
     <div class="stats">
       <div class="stat"><b id="statCount">0</b><span>productos</span></div>
@@ -132,21 +125,21 @@
   <div class="fab-wrap"><button class="fab" id="btnAdd" title="Agregar producto">+</button></div>
 </div>
 
-<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA AUTOMÁTICO -->
+<!-- MODAL FORMULARIO DE PRODUCTO CON GEMINI IA (3.6 FLASH) Y CONVERTIDOR DE TALLAS -->
 <div class="overlay hidden" id="formOverlay">
   <div class="sheet">
     <div class="sheet-head"><h2 id="formTitle">Nuevo producto</h2><button class="icon-btn" data-close="formOverlay">✕</button></div>
     <form id="productForm">
-      <div class="field"><label>Foto del producto (Alta Resolución HD)</label>
+      <div class="field"><label>Foto del producto</label>
         <div class="photo-picker">
           <img id="photoPreview" class="photo-preview" style="display:none;">
           <div id="photoPreviewEmpty" class="photo-preview-empty">📷</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
             <div style="display:flex;gap:6px;">
-              <button type="button" class="btn btn-ghost" id="btnPickPhoto" style="padding:9px 12px;font-size:13px;">Tomar / Seleccionar foto</button>
+              <button type="button" class="btn btn-ghost" id="btnPickPhoto" style="padding:9px 12px;font-size:13px;">Seleccionar foto</button>
               <input class="file-input" type="file" id="photoInput" accept="image/*" capture="environment">
             </div>
-            <button type="button" class="btn btn-ai" id="btnGeminiAnalyze" style="padding:9px 12px;font-size:13px;display:none;">⚡ Reanalizar con Gemini IA</button>
+            <button type="button" class="btn btn-ai" id="btnGeminiAnalyze" style="padding:9px 12px;font-size:13px;display:none;">⚡ Analizar con Gemini IA</button>
           </div>
         </div>
       </div>
@@ -162,7 +155,7 @@
         </div>
       </div>
 
-      <!-- CONVERTIDOR AUTOMÁTICO DE TALLAS US/MX -->
+      <!-- SECCIÓN CONVERTIDOR AUTOMÁTICO DE TALLAS US/MX -->
       <div class="size-converter-box">
         <h5>👟👕 Convertidor de Tallas Automático</h5>
         <div class="field-row" style="margin-bottom:0;">
@@ -192,19 +185,17 @@
 <!-- MODAL PUBLICAR EN REDES SOCIALES -->
 <div class="overlay hidden" id="publishOverlay">
   <div class="sheet">
-    <div class="sheet-head"><h2>Publicación Fondo Blanco Elegante</h2><button class="icon-btn" data-close="publishOverlay">✕</button></div>
+    <div class="sheet-head"><h2>Publicación Lista para Redes</h2><button class="icon-btn" data-close="publishOverlay">✕</button></div>
     <div class="platform-tabs" id="platformTabs">
       <button class="ptab active" data-platform="instagram">Instagram</button>
       <button class="ptab" data-platform="facebook">Facebook</button>
       <button class="ptab" data-platform="whatsapp">WhatsApp</button>
     </div>
     
+    <!-- CANVAS DONDE SE DISEÑA LA FOTO EN TIEMPO REAL -->
     <div class="canvas-wrap"><canvas id="publishCanvas"></canvas></div>
 
-    <button class="btn" id="btnRemoveBg" style="background:#1F4B43;color:#FFF;padding:12px;font-size:14px;margin-bottom:12px;border:none;">
-      ✨ Quitar fondo actual con IA y colocar en Blanco Puro
-    </button>
-
+    <!-- BOTÓN PRINCIPAL PARA PUBLICAR FOTO EDITADA + TEXTO + HASHTAGS -->
     <button class="btn btn-ai" id="btnShareAll" style="padding:15px;font-size:15px;margin-bottom:14px;">🚀 Compartir Publicación Completa (Foto + Texto)</button>
 
     <div class="btn-row" style="margin-top:0;margin-bottom:14px;">
@@ -212,17 +203,17 @@
       <button class="btn btn-ghost" id="btnCopyCaption" style="font-size:12.5px;">📋 Solo Texto y Hashtags</button>
     </div>
     
-    <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Vista previa del texto</label>
+    <label style="display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Vista previa del texto y hashtags</label>
     <div class="caption-box" id="captionBox"></div>
   </div>
 </div>
 
-<!-- MODAL CONFIGURACIÓN -->
+<!-- MODAL CONFIGURACIÓN Y API KEY -->
 <div class="overlay hidden" id="settingsOverlay">
   <div class="sheet">
-    <div class="sheet-head"><h2>Ajustes</h2><button class="icon-btn" data-close="settingsOverlay">✕</button></div>
+    <div class="sheet-head"><h2>Ajustes y Gemini API</h2><button class="icon-btn" data-close="settingsOverlay">✕</button></div>
     <form id="settingsForm">
-      <div class="field"><label>Gemini API Key (Google AI Studio)</label><input type="password" id="sGeminiKey" placeholder="Pega tu API Key aquí"></div>
+      <div class="field"><label>Gemini API Key (Google AI Studio)</label><input type="password" id="sGeminiKey" placeholder="Pega tu API Key de Gemini aquí"></div>
       <div class="field"><label>Nombre de tu negocio</label><input type="text" id="sBusinessName" placeholder="Ej. Mis Ventas"></div>
       <div class="field"><label>Ciudad / Ubicación</label><input type="text" id="sCity" placeholder="Ej. Ciudad Juárez, Chih."></div>
       <div class="field"><label>WhatsApp de contacto</label><input type="tel" id="sPhone" placeholder="Ej. 656 123 4567"></div>
@@ -240,55 +231,55 @@
   var STORAGE_KEY = "local_inventory_products";
   var SETTINGS_KEY = "local_inventory_settings";
 
-  var products = [];
-  var settings = {business_name:"", city:"", phone:"", gemini_key:""};
-
-  // LECTURA SEGURA DE LOCALSTORAGE
-  try {
-    var rawProd = localStorage.getItem(STORAGE_KEY);
-    if(rawProd) products = JSON.parse(rawProd);
-    var rawSet = localStorage.getItem(SETTINGS_KEY);
-    if(rawSet) settings = JSON.parse(rawSet);
-  } catch(e) {
-    console.warn("localStorage inaccesible o restringido:", e);
-  }
+  var products = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  var settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"business_name":"","city":"","phone":"","gemini_key":""}');
 
   var currentFilter="todos", searchTerm="";
   var editingId=null, pendingPhotoBase64=null, currentPhotoUrl=null;
   var publishProduct=null, publishPlatform="instagram";
-  var currentProcessedImgUrl = null;
   var LOW_STOCK=2;
 
   function $(id){ return document.getElementById(id); }
   function money(n){ n=Number(n)||0; return "$"+n.toLocaleString('es-MX',{maximumFractionDigits:0}); }
-  function toast(msg){ var t=$("toast"); if(!t)return; t.textContent=msg; t.classList.add("show"); clearTimeout(toast._h); toast._h=setTimeout(function(){t.classList.remove("show");},3500); }
+  function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._h); toast._h=setTimeout(function(){t.classList.remove("show");},3500); }
   function open(id){ $(id).classList.remove("hidden"); }
   function close(id){ $(id).classList.add("hidden"); }
   document.querySelectorAll("[data-close]").forEach(function(btn){ btn.addEventListener("click",function(){ close(btn.getAttribute("data-close")); }); });
 
-  // CONVERSIÓN DE TALLAS US -> MX
+  // LÓGICA DE CONVERSIÓN DE TALLAS AUTOMÁTICA US -> MX
   function convertSizeUS2MX(category, dept, sizeUS) {
     if(!sizeUS || !sizeUS.trim()) return "";
     var s = sizeUS.trim().toUpperCase();
     var num = parseFloat(s.replace(/[^0-9.]/g, ''));
 
+    // 1. CALZADO / SHOES
     if (category === "Calzado") {
       if (isNaN(num)) return s;
+
       if (dept === "hombre") {
-        var mx = num - 2; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
-      } else if (dept === "dama") {
-        var mx = num - 3; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
-      } else if (dept === "nino" || dept === "nina") {
+        var mx = num - 2;
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } 
+      else if (dept === "dama") {
+        var mx = num - 3;
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } 
+      else if (dept === "nino" || dept === "nina") {
         if (s.indexOf("Y") > -1 || (num >= 1 && num <= 6.5 && s.indexOf("C") === -1 && num < 7)) {
-          var mx = num + 19; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "Y US)";
+          var mx = num + 19;
+          return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "Y US)";
         } else {
-          var mx = num + 6; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "C US)";
+          var mx = num + 6;
+          return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + "C US)";
         }
-      } else if (dept === "bebe") {
-        var mx = num + 6; return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
+      } 
+      else if (dept === "bebe") {
+        var mx = num + 6;
+        return (mx % 1 === 0 ? mx : mx.toFixed(1)) + " MX (" + num + " US)";
       }
     }
 
+    // 2. ROPA / CLOTHING
     if (category === "Ropa") {
       if (s === "XS" || s === "XCH") return "XChica / XCH (28 MX)";
       if (s === "S" || s === "CH") return "Chica / CH (30 MX)";
@@ -297,14 +288,21 @@
       if (s === "XL" || s === "EG") return "Extra Grande / EG (36-38 MX)";
       if (s === "XXL" || s === "2XL") return "2XL / 2EG (40 MX)";
 
-      if (dept === "bebe" && (s.indexOf("M") > -1 || !isNaN(num))) return num + " Meses (" + num + "M US)";
+      if (dept === "bebe") {
+        if (s.indexOf("M") > -1 || !isNaN(num)) {
+          return num + " Meses (" + num + "M US)";
+        }
+      }
       if (dept === "nino" || dept === "nina") {
-        if (s.indexOf("T") > -1) return num + " Años (Talla " + num + " MX)";
+        if (s.indexOf("T") > -1) {
+          return num + " Años (Talla " + num + " MX)";
+        }
         if (!isNaN(num)) {
           if (num <= 6) return num + " Años (Talla " + num + " MX)";
           if (num <= 16) return num + " Años (Talla " + num + "-" + (num+1) + " MX)";
         }
       }
+
       if (!isNaN(num)) {
         if (dept === "dama") {
           if (num === 0 || num === 2) return "Talla 3 / 24 MX (XCH)";
@@ -312,9 +310,12 @@
           if (num === 8 || num === 10) return "Talla 9-11 / 30-32 MX (M-G)";
           if (num === 12 || num === 14) return "Talla 13-15 / 34-36 MX (EG)";
         }
-        if (dept === "hombre") return "Talla " + num + " MX (" + num + 'in US)';
+        if (dept === "hombre") {
+          return "Talla " + num + " MX (" + num + 'in US)';
+        }
       }
     }
+
     return s;
   }
 
@@ -322,7 +323,8 @@
     var cat = $("fCategory").value;
     var dept = $("fDept").value;
     var sizeUS = $("fSizeUS").value;
-    $("fSizeMX").value = convertSizeUS2MX(cat, dept, sizeUS);
+    var mx = convertSizeUS2MX(cat, dept, sizeUS);
+    $("fSizeMX").value = mx;
   }
 
   $("fSizeUS").addEventListener("input", updateSizeConversion);
@@ -330,7 +332,7 @@
   $("fDept").addEventListener("change", updateSizeConversion);
 
   function compressImage(base64Str, maxWidth, maxHeight, quality) {
-    maxWidth = maxWidth || 1200; maxHeight = maxHeight || 1200; quality = quality || 0.85;
+    maxWidth = maxWidth || 400; maxHeight = maxHeight || 400; quality = quality || 0.5;
     return new Promise(function(resolve) {
       var img = new Image();
       img.onload = function() {
@@ -343,8 +345,6 @@
         var canvas = document.createElement('canvas');
         canvas.width = width; canvas.height = height;
         var ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
@@ -361,9 +361,7 @@
       return true;
     } catch(e) {
       console.error(e);
-      toast("⚠️ Memoria del navegador llena o restringida.");
-      renderList();
-      renderStats();
+      toast("⚠️ Memoria local llena. Borra productos antiguos.");
       return false;
     }
   }
@@ -426,19 +424,6 @@
     chip.classList.add("active"); currentFilter=chip.getAttribute("data-filter"); renderList();
   });
 
-  $("btnDeleteOut").addEventListener("click", function(){
-    var outItems = products.filter(function(p){ return (Number(p.stock) || 0) <= 0; });
-    if(outItems.length === 0){
-      toast("No hay productos agotados para eliminar.");
-      return;
-    }
-    if(confirm("¿Eliminar permanentemente " + outItems.length + " producto(s) agotado(s)?")){
-      products = products.filter(function(p){ return (Number(p.stock) || 0) > 0; });
-      saveData();
-      toast("🗑️ Se eliminaron los productos agotados");
-    }
-  });
-
   $("btnAdd").addEventListener("click", function(){ openEdit(null); });
 
   function openEdit(id){
@@ -477,29 +462,28 @@
   }
 
   $("btnPickPhoto").addEventListener("click", function(){ $("photoInput").click(); });
-
   $("photoInput").addEventListener("change", function(e){
     var file=e.target.files[0]; if(!file) return;
     var reader = new FileReader();
     reader.onload = async function(evt){
-      pendingPhotoBase64 = await compressImage(evt.target.result, 1200, 1200, 0.85);
+      pendingPhotoBase64 = await compressImage(evt.target.result, 400, 400, 0.5);
       updatePhotoPreview(pendingPhotoBase64);
-      analyzeImageWithGemini();
     };
     reader.readAsDataURL(file);
   });
 
-  async function analyzeImageWithGemini(){
+  // ANALIZAR CON GEMINI IA (gemini-3.6-flash)
+  $("btnGeminiAnalyze").addEventListener("click", async function(){
     if(!settings.gemini_key){
-      toast("Foto HD cargada. (Agrega tu API Key de Gemini en Ajustes ⚙️ para autocompletar)");
+      toast("Agrega primero tu API Key de Gemini en Ajustes ⚙️");
+      open("settingsOverlay");
       return;
     }
     var imgSrc = pendingPhotoBase64 || currentPhotoUrl;
-    if(!imgSrc){ return; }
+    if(!imgSrc){ toast("Selecciona una foto primero"); return; }
 
-    $("btnGeminiAnalyze").textContent = "⚡ Analizando en HD con IA…";
+    $("btnGeminiAnalyze").textContent = "⚡ Analizando…";
     $("btnGeminiAnalyze").disabled = true;
-    toast("⚡ Analizando foto HD con IA…");
 
     try {
       var parts = imgSrc.split(',');
@@ -511,6 +495,7 @@
 
       var promptText = 'Analiza esta imagen de producto comercial. Responde ÚNICAMENTE en JSON válido sin formato markdown: {"name": "nombre corto del producto", "category": "Calzado|Ropa|Bolsas|Belleza|Accesorios|Hogar|Otro", "dept": "hombre|dama|nino|nina|bebe", "size_us": "talla detectada o vacio", "details": "detalles clave como modelo o color"}';
 
+      // Petición HTTP actualizada a gemini-3.6-flash
       var response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + settings.gemini_key, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -528,4 +513,323 @@
       if(!response.ok) throw new Error(json.error ? json.error.message : "Error HTTP " + response.status);
 
       var rawText = json.candidates[0].content.parts[0].text;
-      var cleanJson = rawText.replace(/```json/gi, "").replace(/
+      var cleanJson = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+      var parsed = JSON.parse(cleanJson);
+
+      if(parsed.name) $("fName").value = parsed.name;
+      if(parsed.category) $("fCategory").value = parsed.category;
+      if(parsed.dept) $("fDept").value = parsed.dept;
+      if(parsed.size_us) $("fSizeUS").value = parsed.size_us;
+      if(parsed.details) $("fDetails").value = parsed.details;
+
+      updateSizeConversion();
+      toast("⚡ ¡Analizado con éxito!");
+    } catch(err) {
+      console.error(err);
+      toast("Error con Gemini: " + err.message);
+    }
+
+    $("btnGeminiAnalyze").textContent = "⚡ Analizar con Gemini IA";
+    $("btnGeminiAnalyze").disabled = false;
+  });
+
+  $("fPrice").addEventListener("input", updateMarginHint);
+  $("fCost").addEventListener("input", updateMarginHint);
+  function updateMarginHint(){
+    var price=parseFloat($("fPrice").value), cost=parseFloat($("fCost").value);
+    if(!isNaN(price) && !isNaN(cost) && cost>=0){
+      var margin=price-cost;
+      $("marginHint").textContent="Ganancia estimada: "+money(margin)+(price>0?" ("+Math.round((margin/price)*100)+"%)":"");
+    } else { $("marginHint").textContent=""; }
+  }
+
+  $("productForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name=$("fName").value.trim();
+    var price=parseFloat($("fPrice").value);
+    var stock=parseInt($("fStock").value,10);
+    if(!name || isNaN(price) || isNaN(stock)){ toast("Revisa nombre, precio y existencias"); return; }
+
+    var photoUrl = pendingPhotoBase64 || currentPhotoUrl;
+
+    var productPayload = {
+      name: name,
+      category: $("fCategory").value,
+      dept: $("fDept").value,
+      size_us: $("fSizeUS").value.trim(),
+      size_mx: $("fSizeMX").value.trim(),
+      details: $("fDetails").value.trim(),
+      price: price,
+      cost: $("fCost").value ? parseFloat($("fCost").value) : null,
+      stock: stock,
+      photo_url: photoUrl
+    };
+
+    if(editingId){
+      var idx = products.findIndex(function(x){return x.id===editingId;});
+      if(idx!==-1){ products[idx] = Object.assign(products[idx], productPayload); }
+    } else {
+      productPayload.id = "p_" + Date.now();
+      products.unshift(productPayload);
+    }
+
+    if(saveData()){
+      toast(editingId ? "Producto actualizado" : "Producto guardado");
+      close("formOverlay");
+    }
+  });
+
+  $("btnDelete").addEventListener("click", function(){
+    if(!editingId) return;
+    if(!confirm("¿Eliminar este producto de tu inventario?")) return;
+    products = products.filter(function(x){return x.id!==editingId;});
+    saveData();
+    toast("Producto eliminado");
+    close("formOverlay");
+  });
+
+  $("btnSettings").addEventListener("click", function(){ open("settingsOverlay"); });
+  $("settingsForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    settings = {
+      gemini_key: $("sGeminiKey").value.trim(),
+      business_name: $("sBusinessName").value.trim(),
+      city: $("sCity").value.trim(),
+      phone: $("sPhone").value.trim()
+    };
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      toast("Ajustes guardados");
+      close("settingsOverlay");
+    } catch(err) {
+      toast("Error al guardar ajustes");
+    }
+  });
+
+  function openPublish(id){
+    publishProduct = products.find(function(x){return x.id===id;});
+    if(!publishProduct) return;
+    publishPlatform="instagram";
+    document.querySelectorAll(".ptab").forEach(function(t){ t.classList.toggle("active", t.getAttribute("data-platform")==="instagram"); });
+    open("publishOverlay"); renderPublish();
+  }
+  $("platformTabs").addEventListener("click", function(e){
+    var tab=e.target.closest(".ptab"); if(!tab) return;
+    document.querySelectorAll(".ptab").forEach(function(t){t.classList.remove("active");});
+    tab.classList.add("active"); publishPlatform=tab.getAttribute("data-platform"); renderPublish();
+  });
+
+  function stockLine(p){ var s=Number(p.stock)||0; if(s<=0) return "Agotado"; if(s<=LOW_STOCK) return "¡Últimas "+s+" piezas!"; return s+" disponibles"; }
+
+  function buildCaption(p, platform){
+    var price=money(p.price)+" MXN";
+    var details=p.details?p.details.trim():"";
+    var sizeText = p.size_mx ? "📏 Talla: " + p.size_mx : (p.size_us ? "📏 Talla US: " + p.size_us : "");
+    var contact = settings.phone ? ("📲 Pedidos por WhatsApp: "+settings.phone) : "📲 Envíame mensaje privado para aparte";
+    var location = settings.city ? ("📍 Entregas en: "+settings.city) : "";
+    
+    var catTag = (p.category || "Ventas").replace(/\s+/g, "");
+    var tags = "#" + catTag + " #Ventas " + (settings.city ? "#" + settings.city.replace(/[^a-zA-Z0-9]/g, "") + " " : "") + "#Oferta #EnVenta #TiendaOnline";
+    
+    var lines=[];
+    if(platform==="instagram"){
+      lines.push("🔥 "+p.name.toUpperCase()+" 🔥");
+      if(sizeText) lines.push("✨ "+sizeText);
+      if(details) lines.push("📝 "+details);
+      lines.push("💰 Precio: "+price);
+      lines.push("📦 Disponible: "+stockLine(p));
+      if(location) lines.push(location);
+      lines.push("\n"+contact);
+      lines.push("\n"+tags);
+    } else if(platform==="facebook"){
+      lines.push("🛍️ ¡DISPONIBLE PARA ENTREGA INMEDIATA!");
+      lines.push("📌 "+p.name);
+      if(sizeText) lines.push(sizeText);
+      if(details) lines.push("📝 "+details);
+      lines.push("💵 Precio: "+price);
+      lines.push("📦 "+stockLine(p));
+      if(location) lines.push(location);
+      lines.push(contact);
+      lines.push("\n"+tags);
+    } else {
+      lines.push("✨ *"+p.name+"*");
+      if(sizeText) lines.push(sizeText);
+      if(details) lines.push(details);
+      lines.push("💰 *"+price+"* — "+stockLine(p));
+      lines.push(contact);
+    }
+    return lines.filter(Boolean).join("\n");
+  }
+
+  function loadImg(src){ 
+    return new Promise(function(resolve,reject){ 
+      var img=new Image(); 
+      if(src && !src.startsWith("data:")){ img.crossOrigin="anonymous"; }
+      img.onload=function(){resolve(img);}; 
+      img.onerror=function(e){reject(e);}; 
+      img.src=src; 
+    }); 
+  }
+
+  async function renderCanvas(p) {
+    var canvas = $("publishCanvas");
+    canvas.width = 1080; canvas.height = 1080;
+    var ctx = canvas.getContext("2d");
+
+    var bgGrad = ctx.createRadialGradient(540, 450, 100, 540, 540, 750);
+    bgGrad.addColorStop(0, "#232A27");
+    bgGrad.addColorStop(1, "#0E1311");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1080, 1080);
+
+    if (p.photo_url) {
+      try {
+        var img = await loadImg(p.photo_url);
+        ctx.save();
+        ctx.filter = "brightness(1.08) contrast(1.15) saturate(1.10)";
+
+        var padding = 70;
+        var maxW = 1080 - (padding * 2);
+        var maxH = 750 - (padding * 2);
+        var scale = Math.min(maxW / img.width, maxH / img.height);
+        var w = img.width * scale;
+        var h = img.height * scale;
+        var x = (1080 - w) / 2;
+        var y = padding + (maxH - h) / 2;
+
+        ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+        ctx.shadowBlur = 35;
+        ctx.shadowOffsetY = 18;
+
+        ctx.drawImage(img, x, y, w, h);
+        ctx.restore();
+      } catch (e) {
+        console.error("Error al procesar foto:", e);
+      }
+    }
+
+    var grad = ctx.createLinearGradient(0, 550, 0, 1080);
+    grad.addColorStop(0, "rgba(14, 19, 17, 0)");
+    grad.addColorStop(0.65, "rgba(14, 19, 17, 0.88)");
+    grad.addColorStop(1, "rgba(14, 19, 17, 0.98)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 500, 1080, 580);
+
+    if (p.size_mx || p.size_us) {
+      var badgeText = "TALLA: " + (p.size_mx || (p.size_us + " US"));
+      ctx.font = "600 24px Inter, sans-serif";
+      var tw = ctx.measureText(badgeText).width;
+      ctx.fillStyle = "rgba(31, 75, 67, 0.9)";
+      roundRect(ctx, 40, 40, tw + 36, 48, 12);
+      ctx.fill();
+      ctx.fillStyle = "#F1ECDE";
+      ctx.fillText(badgeText, 58, 73);
+    }
+
+    ctx.fillStyle = "#E3A94A";
+    ctx.font = "700 92px Fraunces, serif";
+    ctx.fillText(money(p.price), 56, 885);
+
+    ctx.fillStyle = "#F1EDE3";
+    ctx.font = "600 38px Inter, sans-serif";
+    wrapText(ctx, p.name, 56, 948, 968, 44);
+
+    var st = statusOf(p);
+    if (st !== "ok") {
+      var label = st === "out" ? "AGOTADO" : "ÚLTIMAS PIEZAS";
+      ctx.font = "600 26px Inter, sans-serif";
+      var pad = 20, tw = ctx.measureText(label).width;
+      ctx.fillStyle = st === "out" ? "#96392A" : "#B87A24";
+      roundRect(ctx, 1080 - tw - pad * 2 - 40, 40, tw + pad * 2, 50, 25);
+      ctx.fill();
+      ctx.fillStyle = "#F1EDE3";
+      ctx.fillText(label, 1080 - tw - pad - 40, 75);
+    }
+
+    if (settings.business_name) {
+      ctx.font = "500 26px Inter, sans-serif";
+      ctx.fillStyle = "rgba(241,237,218,0.75)";
+      ctx.fillText(settings.business_name.toUpperCase(), 56, 1025);
+    }
+  }
+
+  function wrapText(ctx,text,x,y,maxWidth,lineHeight){
+    var words=(text||"").split(" "),line="",lines=[];
+    for(var i=0;i<words.length;i++){ var test=line+words[i]+" "; if(ctx.measureText(test).width>maxWidth && line){lines.push(line); line=words[i]+" ";} else line=test; }
+    lines.push(line); lines=lines.slice(0,2);
+    lines.forEach(function(l,i){ ctx.fillText(l.trim(),x,y+i*lineHeight); });
+  }
+  function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  async function renderPublish(){
+    if(!publishProduct) return;
+    $("captionBox").textContent = buildCaption(publishProduct, publishPlatform);
+    await renderCanvas(publishProduct);
+  }
+
+  $("btnShareAll").addEventListener("click", function(){
+    if(!publishProduct) return;
+    var canvas = $("publishCanvas");
+    var caption = $("captionBox").textContent;
+    var fileName = (publishProduct.name || "producto").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-social.png";
+
+    canvas.toBlob(async function(blob) {
+      if(!blob){ toast("Error al procesar la imagen"); return; }
+      var file = new File([blob], fileName, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: publishProduct.name,
+            text: caption
+          });
+          toast("¡Publicación enviada!");
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            fallbackShare(file, caption);
+          }
+        }
+      } else {
+        fallbackShare(file, caption);
+      }
+    }, "image/png");
+  });
+
+  function fallbackShare(file, caption) {
+    navigator.clipboard.writeText(caption).then(function() {
+      var url = URL.createObjectURL(file);
+      var a = document.createElement("a");
+      a.href = url; a.download = file.name;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast("📋 Texto copiado y 🖼️ Foto descargada");
+    }).catch(function() {
+      toast("Descargando imagen...");
+    });
+  }
+
+  $("btnCopyCaption").addEventListener("click", async function(){
+    var text=$("captionBox").textContent;
+    try{ await navigator.clipboard.writeText(text); toast("Texto y hashtags copiados"); }
+    catch(e){ toast("Copia el texto manualmente"); }
+  });
+
+  $("btnDownloadImg").addEventListener("click", function(){
+    var canvas=$("publishCanvas");
+    canvas.toBlob(function(blob){
+      if(!blob){ toast("Error al procesar la imagen"); return; }
+      var name=(publishProduct.name||"producto").toLowerCase().replace(/[^a-z0-9]+/g,"-");
+      var url=URL.createObjectURL(blob);
+      var a=document.createElement("a"); a.href=url; a.download=name+"-social.png";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast("Imagen descargada");
+    }, "image/png");
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
